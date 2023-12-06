@@ -20,7 +20,8 @@ setDT(kw_sig)
 
 samp %>% 
   .[variable %in% c("kw2", "icc") & 
-      mod_type %in% c("all", "similar")] %>%
+      mod_type %in% c("all", "similar") &
+      it %in% sample(max(samp$it), 1000)] %>% # randomly select 1000 to plot for efficiency
   data.table::dcast(it + id + mod_type + s ~ variable, value.var = "value") %>%
   .[s %in% c(4,6,8,10)] %>%
   ggplot(aes(x = icc, y = kw2, color = mod_type)) +
@@ -41,10 +42,11 @@ samp %>%
                      name = "agreement between ranks\n(Kendall's W)") + 
   theme_bw() + 
   theme(legend.margin = margin(rep(0,4)),
-        legend.position = c(0.92, 0.14),
+        legend.position = "bottom",
         legend.title = element_blank(),
         panel.grid = element_blank(),
         strip.background = element_blank(), 
         strip.placement = "outside")
 
 ggsave("figures/figureS6.pdf", width = 8, height = 3)
+
