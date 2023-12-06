@@ -23,7 +23,7 @@ plt_data <- merge(setDT(expand.grid(s = 2:12,
                     .[, .(n = .N), by = .(s, variable, v, mod_type, value)] %>%
                     .[, p := n/sum(n), by = .(s, variable, v, mod_type)], 
                   by = c("s", "variable", "mod_type", "value"), all = TRUE) %>% 
-  .[!(variable %in% c("kw", "icc"))] %>%
+  .[!(variable %in% c("kw", "kw2", "icc"))] %>%
   .[, p := ifelse(is.na(p), 0, p)] %>%
   .[order(-value),] %>%
   .[, ncum := cumsum(p), by = .(s, variable, mod_type)] %>%
