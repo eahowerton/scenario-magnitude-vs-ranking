@@ -72,13 +72,13 @@ calc_icc_manual <- function(dat){
 
 calc_scores_manual <- function(dat){
   mat_rank <- dat %>%
-    dcast(scenario_id ~ model_name, value.var = "r") %>%
+    data.table::dcast(scenario_id ~ model_name, value.var = "r") %>%
     .[, scenario_id := NULL] %>%
     as.matrix()
   if(any(is.na(mat_rank))){return(NULL)}
   kw <- kendall_w_manual(mat_rank)
   mat_mag <- dat %>% 
-    dcast(scenario_id ~ model_name, value.var = "value") %>% 
+    data.table::dcast(scenario_id ~ model_name, value.var = "value") %>% 
     .[, scenario_id := NULL] %>%
     as.matrix()
   icc_a <- icc_twoway_manual(mat_mag)
