@@ -11,7 +11,7 @@ icc_twoway_manual <- function(ratings){
   SST = var(as.numeric(ratings))*(n*k-1)           # sum of squares total
   MSBS = var(apply(ratings, 1, mean)) * k          # mean squares between subjects/scenarios
   MSBM = var(apply(ratings, 2, mean)) * n          # mean squares between models
-  MSE <- (SST - MSBS*(n - 1) - MSBM*(k-1))/    # mean square error 
+  MSE <- (SST - MSBS*(n - 1) - MSBM*(k-1))/        # mean square error 
     ((n-1) * (k-1))
   # equivalent calculations following Liljequist formulas exactly
   # SST = sum((ratings-mean(ratings))^2)   

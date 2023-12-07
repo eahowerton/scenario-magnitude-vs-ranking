@@ -21,7 +21,8 @@ p <- proj[quantile %in% c(0.5, 0.25, 0.75) &       # perform for 3 quantiles
 
 # perform agreement calculations
 SMH_agreement <- p[, as.list(calc_scores_manual(.SD)),
-                   by = .(round, target, target_end_date, horiz, location, quantile)]
+                   by = .(round, target, target_end_date, horiz, location, quantile)] %>%
+  .[, icc_a_nonzero := ifelse(icc_a < 0, 0, icc_a)]
 
 write.csv(SMH_agreement, "output-data/SMH-analysis/SMH_agreement.csv")
 
