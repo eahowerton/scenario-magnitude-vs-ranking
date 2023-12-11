@@ -43,7 +43,7 @@ ggplot(data = plt_data %>%
   scale_color_manual(labels = c("Estimates agree within 20 infections",
                                 "Estimates agree within 50 infections",
                                 "Estimates agree within 100 infections",
-                                "Intervention recommendations agree"),
+                                "Intervention scenario ranking agrees"),
                      values = c(brewer.pal(4, "RdYlBu")[1:3], "black")) +
   scale_x_continuous(breaks = seq(3,12,3), 
                      name = "number of models in set") +
