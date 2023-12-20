@@ -4,5 +4,5 @@
 .Ruserdata
 .DS_Store
 output-data/*
-supplementary-material_cache/*
-supplementary-material_files/*
+code/manuscript-figures/supplementary-material_cache/*
+code/manuscript-figures/supplementary-material_files/*
