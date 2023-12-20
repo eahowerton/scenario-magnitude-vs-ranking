@@ -1,5 +1,5 @@
 # load R environment
-renv::init()
+renv::restore()
 
 library(data.table)
 library(dplyr)
@@ -18,6 +18,7 @@ p <- proj[quantile %in% c(0.5, 0.25, 0.75) &       # perform for 3 quantiles
   .[, include := NULL] %>%
   .[, r := rank(value), by = .(round, target, target_end_date, location, model_name, quantile)] %>%
   .[, scenario_letter := substr(scenario_id,1,1)]
+write.csv(p, "output-data/SMH-analysis/SMH_ranks.csv")
 
 # perform agreement calculations
 SMH_agreement <- p[, as.list(calc_scores_manual(.SD)),
