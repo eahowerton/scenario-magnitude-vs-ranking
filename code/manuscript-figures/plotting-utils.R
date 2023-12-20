@@ -25,3 +25,29 @@ est_labs <- c("Estimates agree within\n20 infections",
               "Estimates agree within\n100 infections",
               "Intervention\nrecommendations agree")
 names(est_labs) <- c("mag_10", "mag_25", "mag_50", "rec")
+
+
+round_labs <- c("Round 1 (vaccination, NPIs)\nbegin Jan. 9, 2021, 26 weeks", 
+                "Round 2 (vaccination, NPIs)\nbegin Jan. 30, 2021, 26 weeks", 
+                "Round 3 (vaccination, NPIs)\nbegin Mar. 13, 2021, 26 weeks", 
+                "Round 4 (vaccination, NPIs)\nbegin Apr. 3, 2021, 26 weeks",
+                "Round 5 (vaccination, NPIs)\nbegin May 8, 2021, 26 weeks", 
+                "Round 6 (vaccination, variant)\nbegin Jun. 5, 2021, 26 weeks", 
+                "Round 7 (vaccination, variant)\nbegin Jul. 10, 2021, 26 weeks", 
+                "Round 9 (vaccination, variant)\nbegin Sep. 18, 2021, 26 weeks", 
+                "Round 11 (variant)\nbegin Dec. 25, 2021, 12 weeks",
+                "Round 12 (variant)\nbegin Jan 15, 2022, 12 weeks", 
+                "Round 13 (vaccination, variant)\nbegin Mar. 13, 2022, 52 weeks", 
+                "Round 14 (vaccination, variant)\nbegin Jun. 5, 2022, 50 weeks", 
+                "Round 15 (vaccination, variant)\nbegin Jul. 31, 2022, 40 weeks", 
+                "Round 16 (vaccination, variant)\nbegin Oct. 30, 2022, 26 weeks")
+names(round_labs) <- c(1:7, 9, 11:16)
+
+round_labs_simp <- paste("Round",c(1:7, 9, 11:16))
+names(round_labs_simp) <- c(1:7, 9, 11:16)
+
+horiz_labs <- paste(c(4,8,12,16,20,26,40,50,52), "weeks ahead")
+names(horiz_labs) <- c(4,8,12,16,20,26,40,50,52)
+
+#### OTHER PLOT SETTINGS -------------------------------------------------------
+bs <- 7
