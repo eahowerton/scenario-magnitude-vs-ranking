@@ -1,5 +1,5 @@
 # load R environment
-renv::init()
+renv::restore()
 
 library(data.table)
 library(dplyr)
@@ -56,3 +56,4 @@ locations <- read.csv(file.path(paste0(data_repo_path, "data-locations/locations
 # remove territories
 locations <- setDT(locations)[!(location %in% c("60", "66", "69", "72", "74", "78"))]
 proj <- proj[locations, on = .(location)]
+
