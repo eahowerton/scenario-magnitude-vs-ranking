@@ -50,7 +50,7 @@ pA <- comp_null_smh %>%
   scale_x_continuous(limits = c(-1,1)*max(abs(comp_null_smh$rel_change_icc[!is.infinite(comp_null_smh$rel_change_icc)])), 
                      name = "relative agreement between projection magnitude\nlog(ICC(SMH)/ICC(null))") +
   scale_y_continuous(limits = c(-1,1)*max(abs(comp_null_smh$rel_change_kw[!is.infinite(comp_null_smh$rel_change_kw)])),
-                     name = "relative agreement between projection ranks\nlog(KW(SMH)/KW(null))") +
+                     name = "relative agreement between scenario ranks\nlog(KW(SMH)/KW(null))") +
   theme_bw(base_size = bs) + 
   theme(legend.position = "bottom", 
         panel.grid.minor = element_blank(), 
@@ -127,4 +127,85 @@ plot_grid(pA, pB,
           rel_widths = c(0.695, 0.305)
           ) 
 ggsave("figures/Figure5.pdf", width = 190, height = 155, units = "mm")
+
+
+#### VALUES FOR TEXT -----------------------------------------------------------
+# null correlations
+null_agreement %>% 
+  .[, .(cr = cor(kendall_w, icc_a_nonzero)),  
+    by = .(round, target, target_end_date, location, quantile)] %>%
+  .[cr > 0.8] %>% 
+  nrow()
+
+null_agreement %>% 
+  .[, .(cr = cor(kendall_w, icc_a_nonzero)),  
+    by = .(round, target, target_end_date, location, quantile)] %>%
+  .[cr > 0.8] %>% 
+  nrow()/728
+
+# mean % change in ICC
+comp_null_smh %>% 
+  .[!is.infinite(rel_change_icc)] %>% 
+  .[ , .(mean_change = 1-exp(mean(rel_change_icc)))]
+
+# % change in ICC by round
+comp_null_smh %>% 
+  .[!is.infinite(rel_change_icc)] %>% 
+  .[ , .(mean_change = 1-exp(mean(rel_change_icc))), 
+     by = .(round)] %>% 
+  .[order(mean_change)]
+
+# mean % change in KW
+comp_null_smh %>% 
+  .[!is.infinite(rel_change_kw)] %>% 
+  .[ , .(mean_change = exp(mean(rel_change_kw)))]
+
+# % change in KW by round
+comp_null_smh %>% 
+  .[!is.infinite(rel_change_kw)] %>% 
+  .[ , .(mean_change = exp(mean(rel_change_kw))), 
+     by = .(round)] %>% 
+  .[order(mean_change)]
+
+# % of locations with SMH ICC lower than 90% of null sims
+nrow(null_agreement_sig %>% 
+  .[marginal_p_icc>0.90])
+
+nrow(null_agreement_sig %>% 
+       .[marginal_p_icc>0.90])/nrow(null_agreement_sig)
+
+# by round
+null_agreement_sig %>% 
+       .[, flg := ifelse(marginal_p_icc>0.90, 1, 0)] %>% 
+  .[, .(f = sum(flg), 
+        n = .N, 
+        p = sum(flg)/.N), 
+    by = .(round)] %>% 
+  .[order(round)] %>%
+  #.[round %in% 1:6] %>% 
+  .[round %in% 13:16] %>%
+  .[, .(f = sum(f), 
+        n = sum(n), 
+        p = sum(f)/sum(n))]
+
+# % of locations with SMH KW higher than 90% of null sims
+nrow(null_agreement_sig %>% 
+       .[marginal_p_kw<0.10])
+
+nrow(null_agreement_sig %>% 
+       .[marginal_p_kw<0.10])/nrow(null_agreement_sig)
+
+# by round
+null_agreement_sig %>% 
+  .[, flg := ifelse(marginal_p_kw<0.10, 1, 0)] %>% 
+  .[, .(f = sum(flg), 
+        n = .N, 
+        p = sum(flg)/.N), 
+    by = .(round)] %>% 
+  .[order(round)] %>%
+  #.[round %in% 1:6] %>% 
+  .[round %in% 13:16] %>%
+  .[, .(f = sum(f), 
+        n = sum(n), 
+        p = sum(f)/sum(n))]
 

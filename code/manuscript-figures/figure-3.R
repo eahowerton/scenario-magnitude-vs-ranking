@@ -49,3 +49,21 @@ samp %>%
         strip.placement = "outside")
 ggsave("figures/figure3.pdf", width = 8, height = 3)
 
+#### VALUES FOR TEXT -----------------------------------------------------------
+samp %>% 
+  .[variable %in% c("kw", "icc") & 
+      mod_type %in% c("all", "similar")] %>% 
+  .[, .(m = mean(value), 
+        l = quantile(value, 0.25), 
+        u = quantile(value, 0.75)), 
+    by = .(mod_type, variable)]
+
+samp %>% 
+  .[variable == "kw2" & 
+      mod_type %in% c("all", "similar")] %>%
+  .[, .(m = mean(value), 
+        l = quantile(value, 0.25), 
+        u = quantile(value, 0.75)), 
+    by = .(mod_type, variable)]
+
+
