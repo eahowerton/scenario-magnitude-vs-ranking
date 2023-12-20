@@ -1,0 +1,454 @@
+---
+title: "Supplementary material for:\nWhen do we need multipel infectious disease models? Agreement between projection rank and magnitude in a multi-model setting"
+author: 
+  - La Keisha Wade-Malone, The Pennsylvania State University
+  - Emily Howerton, The Pennsylvania State University
+  - William J.M. Probert, University of Oxford
+  - Michael C. Runge, U.S. Geological Survey
+  - Cecile Viboud, National Institutes of Health
+  - Katriona Shea, The Pennsylvania State University
+output: pdf_document
+header-includes:
+  - \usepackage{caption}
+  - \DeclareCaptionLabelFormat{nospace}{#1#2}
+  - \captionsetup[figure]{labelformat=nospace}
+  - \captionsetup[table]{labelformat=nospace}
+---
+
+\def\figurename{Fig. S}
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, cache = TRUE)
+
+library(deSolve)
+library(dplyr)
+library(data.table)
+library(ggplot2)
+library(scales)
+library(cowplot)
+library(reshape2)
+library(metR)
+library(RColorBrewer)
+
+eval_repo_path <- "~/Documents/GitHub/covid19-scenario-hub_evaluation"
+data_repo_path <- file.path(paste(eval_repo_path), "data-raw/")
+
+# location information
+locations <- read.csv(file.path(paste0(data_repo_path, "data-locations/locations.csv")))
+# remove territories
+locations <- setDT(locations)[!(location %in% c("60", "66", "69", "72", "74", "78"))]
+
+# plotting objects
+source("code/manuscript-figures/plotting-utils.R")
+```
+
+# SIR Simulations
+
+```{r fig-s1, fig.cap="ADD HERE"}
+source("code/SIR-simulations/functions.R")
+source("code/SIR-simulations/setup_model.R")
+
+test_runs = expand.grid(N=1000,
+                        beta =seq(.75,1.25,by=0.1),
+                        gamma = seq(.1, 0.5, by=0.1),
+                        V=c(0,pick_v), # vaccination level
+                        d=c(0,pick_d)) # distancing intensity)
+test_runs$id = 1:nrow(test_runs)
+
+dynam <- list()
+for(row in 1:nrow(test_runs)){
+  dynam[[row]] = ode(y=start, times=times, func = sirmod, parms = test_runs[row,])
+  dynam[[row]] = as.data.frame(dynam[[row]])
+}
+dynam <- rbindlist(dynam, idcol = "id") %>%
+  .[test_runs, on = .(id)]
+
+#### PLOT VARIOUS TRAJECTORIES -------------------------------------------------
+dynam %>% 
+  .[V*d == 0] %>%
+  .[, intervention_id := ifelse(V == 0 & d == 0, "no intervention", 
+                                ifelse(V > 0, "vaccination", "NPIs"))] %>%
+ggplot(aes(x = time, y = I, linetype = intervention_id)) + 
+  geom_line() + 
+  facet_grid(cols = vars(beta), rows = vars(gamma), 
+             labeller = label_both) + 
+  labs(y = "infected individuals") + 
+  theme_bw() + 
+  theme(legend.position = "bottom", 
+        legend.title = element_blank(), 
+        panel.grid = element_blank(), 
+        strip.background = element_blank())
+# ggsave("figures/figureS1.pdf", width = 8.5, height = 7)
+```
+
+```{r fig-s2, fig.height=6, fig.cap = "Results from Fig. 1B repeated for varying intervention efficacies (vaccination rate ranging from 0.5% to 2% of the population per day, and NPI reduction of the transmission rate ranging from 10% to 40%). Each panel shows a large part of the space of possible models across biological uncertainties (transmission rate, $\\beta$, and recovery rate, $\\gamma$). Each position on the graph represents an individual model, the color of the tile represents the recommended intervention (orange: non-pharmaceutical interventions, NPIs; purple: vaccination), and the intensity of the color is the magnitude of the projected difference in cumulative infections. Colors have been rescaled from Fig. 1. The gray line shows where the difference in cumulative infections is 0, or where neither intervention is recommended over the other. Black contours show sample values of individual model $R_0$ = 2,3.5, 6, and 10."}
+multi_panel <- read.csv("output-data/SIR-simulations/SIR_varying_intervention_params.csv")
+
+multi_panel_alt <- multi_panel %>%
+  select(beta, gamma, cases, v_rate, d_rate, peak_cases, intervention) %>%
+  reshape2::melt(c("beta", "gamma", "v_rate", "d_rate", "intervention")) %>%
+  reshape2::dcast(beta + gamma + v_rate + d_rate + variable ~ intervention, 
+                  value.var = "value") %>%
+  mutate(diff = (v - d),
+         rel_diff = (v-d)/n,
+         rec = ifelse(diff < 0, "vaccination", "distancing"))
+
+m_case <- multi_panel_alt %>%
+  filter(variable == "cases") %>%
+  mutate(diff = abs(diff)) %>%
+  pull(diff) %>% max()
+
+multi_panel_alt  %>%
+  filter(variable == "cases") %>%
+  ggplot(aes(x = beta, y = gamma)) +
+  geom_tile(aes(fill = diff)) +
+  geom_contour(aes(z = diff), breaks = 0, color = "grey") +
+  geom_contour(aes(z = beta/gamma),
+               color = "black",
+               breaks = c(2,3.5,6,10)) +
+  geom_text_contour(aes(z = beta/gamma),
+                    color = "black",
+                    breaks = c(2,2.5,3.5,5,6,7,10),
+                    stroke  = 0.2) +
+  facet_grid(cols = vars(v_rate), rows = vars(d_rate), 
+             labeller = labeller(v_rate = labs_v, 
+                                 d_rate = labs_d)) +
+  scale_x_continuous(expand = c(0,0), name = "transmission rate") +
+  scale_y_continuous(expand = c(0,0), name = "recovery rate") +
+  scale_fill_distiller(palette = "PuOr",
+                       limits= c(-1,1)*m_case,
+                       name = "difference in\ncumulative\ninfections",
+                       breaks = seq(-500,500, 250),
+                       labels = c("-500\nvaccination", "-250", "0", "250", "500\nNPIs")) +
+  theme_bw() +
+  theme(legend.position = "bottom",
+        legend.key.width = unit(0.6, "in"), 
+        strip.background = element_blank())
+```
+
+```{r fig-s3, fig.height=6, fig.cap = "Model results for minimizing peak infections. Results are shown for varying intervention efficacies (vaccination rate ranging from 0.5% to 2% of the population per day, and NPI reduction of the transmission rate ranging from 10% to 40%). Each panel shows a large part of the space of possible models across biological uncertainties (transmission rate, $\\beta$, and recovery rate, $\\gamma$). Each position on the graph represents an individual model, the color of the tile represents the recommended intervention (orange: non-pharmaceutical interventions, NPIs; purple: vaccination), and the intensity of the color is the magnitude of the projected difference in peak infections. Colors have been rescaled from Figure 1. The gray line shows where the difference in peak infections is 0, or where neither intervention is recommended over the other. Black contours show sample values of individual model $R_0$ = 2,3.5, 6, and 10."}
+multi_panel_alt <- multi_panel %>%
+  select(beta, gamma, cases, v_rate, d_rate, peak_cases, intervention) %>%
+  reshape2::melt(c("beta", "gamma", "v_rate", "d_rate", "intervention")) %>%
+  reshape2::dcast(beta + gamma + v_rate + d_rate + variable ~ intervention, 
+                  value.var = "value") %>%
+  mutate(diff = (v - d),
+         rel_diff = (v-d)/n,
+         rec = ifelse(diff < 0, "vaccination", "distancing"))
+
+m_peak <- multi_panel_alt %>%
+  filter(variable == "peak_cases") %>%
+  mutate(diff = abs(diff)) %>%
+  pull(diff) %>% max()
+
+multi_panel_alt  %>%
+  filter(variable == "peak_cases") %>%
+  ggplot(aes(x = beta, y = gamma)) +
+  geom_tile(aes(fill = diff)) +
+  geom_contour(aes(z = beta/gamma),
+               color = "black",
+               breaks = c(2,3.5,6,10)) +
+  geom_text_contour(aes(z = beta/gamma),
+                    color = "black",
+                    breaks = c(2,2.5,3.5,5,6,7,10),
+                    stroke  = 0.2) +
+  facet_grid(cols = vars(v_rate), rows = vars(d_rate), 
+             labeller = labeller(v_rate = labs_v, 
+                                 d_rate = labs_d)) +
+  scale_x_continuous(expand = c(0,0), name = "transmission rate") +
+  scale_y_continuous(expand = c(0,0), name = "recovery rate") +
+  scale_fill_distiller(palette = "PuOr",
+                       limits= c(-1,1)*m_peak,
+                       name = "difference in\npeak\ninfections",
+                       breaks = seq(-150,150, 75),
+                       labels = c("-150\nvaccination", "-75", "0", "75", "150\nNPIs")) +
+  theme_bw() +
+  theme(legend.position = "bottom",
+        legend.key.width = unit(0.6, "in"), 
+        strip.background = element_blank())
+```
+
+```{r fig-s4, fig.height=6, fig.cap = "Probability of models agreeing about intervention recommendations or estimates of cumulative infections without intervention for different sampling schemes (columns) and number of models agreeing (rows). Probabilities are calculated for a set of models of size two to size ten, either when choosing randomly among all models or among models with “similar” assumptions, defined as those with transmission and recovery rate assumptions within $\\pm$ 0.1, $\\pm$ 0.05 or $\\pm$ 0.15 of a given model. Agreement probability of at least 2, 4, 6, or 8 models is shown for estimates of cumulative cases within 20 infections (2% of population, red), within 50 infections (5% of population, yellow), within 100 infections (10% of population, blue), or recommended intervention (black)."}
+samp <- read.csv("output-data/SIR-simulations/SIR_sample_model_sets.csv")
+setDT(samp)
+
+# summarize
+plt_data <- merge(setDT(expand.grid(s = 2:12, 
+                                    variable = unique(samp$variable),
+                                    mod_type = unique(samp$mod_type),
+                                    value = 2:12)) %>% 
+                    .[value <= s], 
+                  samp %>% 
+                    .[, .(n = .N), by = .(s, variable, v, mod_type, value)] %>%
+                    .[, p := n/sum(n), by = .(s, variable, v, mod_type)], 
+                  by = c("s", "variable", "mod_type", "value"), all = TRUE) %>% 
+  .[!(variable %in% c("kw", "kw2", "icc"))] %>%
+  .[, p := ifelse(is.na(p), 0, p)] %>%
+  .[order(-value),] %>%
+  .[, ncum := cumsum(p), by = .(s, variable, mod_type)] %>%
+  .[value != 1]
+plt_data <- plt_data[, c("variable_type", "variable_tol") := data.table(stringr::str_split_fixed(plt_data$variable, "_", 2))]
+
+ggplot(data = plt_data[value %in% seq(2,8,2)], 
+       aes(x = s)) +  #, y = value0
+  geom_line(aes(y = ncum, color = as.factor(variable)), 
+            size = 0.25, alpha = 0.7) +
+  geom_point(aes(y = ncum, color = as.factor(variable)), size = 1.5) +
+  # geom_tile(aes(fill = ncum)) + 
+  # geom_tile(data = plt_data[ncum == 1], aes(fill = ncum), color = "white", size =1) + 
+  #geom_contour(aes(z = ncum), breaks = c(0.5, 0.25, 0.75, 0.9)) +
+  facet_grid(rows = vars(as.factor(paste0("at least ", value, " models agree"))), 
+             cols = vars(mod_type),
+             labeller = labeller(mod_type = mod_type_labs),
+             switch = "y") +
+  guides(color = guide_legend(nrow = 2)) +
+  scale_color_manual(# breaks = c(0,10,25,50,100),
+    labels = c("Estimates agree within 20 cases",
+               "Estimates agree within 50 cases",
+               "Estimates agree within 100 cases",
+               "Intervention recommendations agree"),
+    values = c(brewer.pal(4, "RdYlBu")[1:3], "black")) +
+  #name = "number of models making predictions") + 
+  scale_x_continuous(name = "number of models in set") +
+  scale_y_continuous(labels = percent, 
+                     name = "probability") + 
+  theme_bw() + 
+  theme(#axis.title.y = element_blank(), 
+    legend.position = "bottom", 
+    legend.title = element_blank(),
+    panel.grid.major.x = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    strip.background = element_blank(), 
+    strip.placement = "outside")#, strip.text = element_text(hjust = 0)
+```
+
+```{r fig-s5, fig.height=5, fig.cap = "ADD HERE"}
+# create data.frames to draw lines on heatmap at 50% 
+stps_50pct <- plt_data %>%
+  .[mod_type %in% c("all", "similar") & 
+      variable %in% c("mag_10", "mag_25", "mag_50", "rec")] %>%
+  .[, less_50pct_flag := ifelse(ncum < 0.5, 1, 0)] %>%
+  .[less_50pct_flag == 1] %>%
+  .[, .(min_less_50 = min(value)), by = .(s, mod_type, variable)] 
+# add one extra segment to finish line at s = 12
+stps_50pct <- rbindlist(list(
+  stps_50pct, 
+  stps_50pct[s == 12] %>% 
+    .[, s := s+1]))
+
+# repeat for 90%
+stps_90pct <- plt_data %>%
+  .[mod_type %in% c("all", "similar") & 
+      variable %in% c("mag_10", "mag_25", "mag_50", "rec")] %>%
+  .[, less_90pct_flag := ifelse(ncum < 0.9, 1, 0)] %>%
+  .[less_90pct_flag == 1] %>%
+  .[, .(min_less_90 = min(value)), by = .(s, mod_type, variable)]
+# add one extra segment to finish line at s = 12
+stps_90pct <- rbindlist(list(
+  stps_90pct, 
+  stps_90pct[s == 12] %>% 
+    .[, s := s+1]))
+
+
+plt_data %>%
+  .[mod_type %in% c("all", "similar") & 
+      variable %in% c("mag_10", "mag_25", "mag_50", "rec")] %>%
+  ggplot(aes(x = s, y = value)) +
+  geom_tile(aes(fill = ncum)) + 
+  geom_step(data = stps_50pct, 
+            aes(x = s-0.5, 
+                y = min_less_50-0.5), 
+            linetype = "solid", 
+            size = 0.7) +
+  geom_step(data = stps_90pct, 
+            aes(x = s-0.5,
+                y = min_less_90-0.5), 
+            linetype = "dashed", 
+            size = 0.7) +
+  facet_grid(cols = vars(variable), 
+             rows = vars(paste(mod_type, "models")), 
+             labeller = labeller(variable = est_labs)) + 
+  scale_fill_viridis_c(name = "probability of agreement") + 
+  scale_linetype_manual(values = c("solid","dashed")) +
+  scale_x_continuous(breaks = 2:12, 
+                     expand = c(0,0), 
+                     name = "number of models in set") +
+  scale_y_continuous(breaks = 2:12, 
+                     expand = c(0,0), 
+                     name = "number of models agreeing") + 
+  theme_bw() + 
+  theme(legend.key.width = unit(1,"cm"),
+        legend.position = "bottom", 
+        panel.grid = element_blank(), 
+        strip.background = element_blank())
+```
+
+```{r fig-s6, fig.height=2.5, fig.cap = "ADD HERE"}
+n = 2
+kw_sig = data.frame(s = 2:10)
+kw_sig$p_0.05 = qchisq(0.05, df = n-1, lower.tail = FALSE)/(kw_sig$s*(n-1))
+setDT(kw_sig)
+
+samp %>% 
+  .[variable %in% c("kw2", "icc") & 
+      mod_type %in% c("all", "similar") &
+      it %in% sample(max(samp$it), 1000)] %>% # randomly select 1000 to plot for efficiency
+  data.table::dcast(it + id + mod_type + s ~ variable, value.var = "value") %>%
+  .[s %in% c(4,6,8,10)] %>%
+  ggplot(aes(x = icc, y = kw2, color = mod_type)) +
+  geom_point(alpha = 0.05) + 
+  geom_hline(data = kw_sig %>%
+               .[s %in% c(4,6,8,10)], 
+             aes(yintercept = p_0.05), linetype = "dotted") +
+  stat_ellipse() +
+  facet_grid(cols = vars(s), 
+             labeller = labeller(s = mod_labs))+#, rows = vars(mod_type)) + 
+  scale_color_brewer(labels = c("all models", "similar models"), 
+                     palette = "Set1") +
+  scale_x_continuous(breaks = c(0,0.5,1),
+                     limits = c(0,1), 
+                     name = "agreement between values\n(intraclass correlation coefficient)")+
+  scale_y_continuous(breaks = c(0,0.5,1),
+                     limits = c(0,1), 
+                     name = "agreement between ranks\n(Kendall's W)") + 
+  theme_bw() + 
+  theme(legend.margin = margin(rep(0,4)),
+        legend.position = "bottom",
+        legend.title = element_blank(),
+        panel.grid = element_blank(),
+        strip.background = element_blank(), 
+        strip.placement = "outside")
+```
+
+```{r generate-fig-s7-48}
+p <- setDT(read.csv("output-data/SMH-analysis/SMH_ranks.csv"))
+plt_list <- list()
+plt_cap <- list()
+counter <- 1
+for(i in c(1:7,9,11:16)){
+  for(j in c("cum hosp")){
+  #for(j in c("cum case", "cum hosp", "cum death")){
+    plt_list[[counter]] <- p[target == j & 
+                               round == i &
+                               quantile == 0.5 &
+                               horiz == max_horiz] %>%
+      .[, n_mods := length(unique(model_name)), by = .(location, round)] %>%
+      ggplot() + 
+      geom_point(aes(x = value, 
+                     y = paste0(scenario_letter, model_name), 
+                     color = as.factor(r)), 
+                 size = 0.7) +
+      geom_hline(aes(yintercept = n_mods + 0.5)) +
+      geom_hline(aes(yintercept = 2*n_mods + 0.5)) +
+      geom_hline(aes(yintercept = 3*n_mods + 0.5)) +
+      geom_hline(aes(yintercept = 4*n_mods + 0.5)) +
+      ggtitle(paste0("Round ", i, " (horizon: ", max(p[round == i,"horiz"]), " weeks)")) +
+      facet_wrap(vars(location_name), scales = "free") +
+      scale_color_manual(breaks = seq(1, 4, 0.5), 
+                         values = rev(brewer.pal(11,"RdYlBu")[c(2:4,5,8:10)]), 
+                         name = "rank", 
+                         labels = c("best", rep("", 5), "worst")) +
+      scale_x_continuous(label = unit_format(scale = 1e-3, suffix = ""), 
+                         name = paste(j," (K)")) +
+      theme_bw() +
+      theme(axis.text = element_blank(),
+            axis.ticks = element_blank(),
+            axis.title.y = element_blank(),
+            legend.position = "none",
+            panel.grid.minor = element_blank(), 
+            panel.spacing = unit(0, "lines"),
+            strip.background = element_blank())
+    n_mods <- median(p[target == j & 
+                         round == i &
+                         horiz == max_horiz] %>%
+                       .[, n_mods := length(unique(model_name)), by = .(location, round)] %>% 
+                       pull(n_mods))
+    plt_cap[[i]] <- paste0("COVID-19 Scenario Modeling Hub projections of cumulative ", 
+                           ifelse(j == "cum case", "cases", 
+                                  ifelse(j == "cum hosp", "hospitalizations", "deaths")), 
+                           " for Round ", i, ". Projections are collected from ", n_mods, 
+                           " models for four scenarios. Across locations (panels), projections are shown for each scenario 
+                           (separated by horizontal black lines) from each model (individual points), points are colored 
+                           based on the rank of that scenario for each model (blue is lowest projection, and red 
+                           is highest projection).")
+    counter <- counter + 1
+  } 
+}
+```
+
+```{r fig-s7-48, fig.height = 8, fig.cap = plt_cap, results="asis"}
+for(i in plt_list){
+  print(
+      i
+    )
+    cat('\n\n') 
+}    
+```
+
+```{r null-agree-comps}
+null_agreement <- setDT(read.csv("output-data/SMH-analysis/null_agreement.csv")) %>%
+  .[locations, on = .(location)] %>%
+  .[, target_end_date := as.IDate(target_end_date)] %>%
+  .[, horiz := (target_end_date - min(target_end_date))/7 + 1, by = .(round)] %>%
+  .[, max_horiz := max(horiz), by =.(round)]
+SMH_agreement <- setDT(read.csv("output-data/SMH-analysis/SMH_agreement.csv")) %>%
+  .[locations, on = .(location)] %>%
+  .[, target_end_date := as.IDate(target_end_date)] %>%
+  .[, horiz := (target_end_date - min(target_end_date))/7 + 1, by = .(round)] %>%
+  .[, max_horiz := max(horiz), by =.(round)]
+plt_list_null <- list()
+plt_cap_null <- list()
+counter <- 1
+for(i in c(1:7,9,11:16)){
+  pnt <- SMH_agreement  %>%
+    .[horiz == max_horiz &
+        quantile == 0.5 &
+        round == i &
+        target == "cum hosp"]
+  dns <- null_agreement %>%
+    .[round == i &
+        target == "cum hosp"] %>%
+    .[, .(round, target, location, sim_id, kendall_w, icc_a_nonzero)] %>%
+    data.table::melt(c("round", "target", "location", "sim_id")) %>%
+    .[, .(x = density(value)$x,
+          y = density(value)$y),
+      by = .(round, target, location, variable)]
+  plt_list_null[[i]] = null_agreement %>%
+    .[round == i &
+        target == "cum hosp"] %>%
+    ggplot(aes(x = icc_a_nonzero, y = kendall_w)) +
+    geom_point(alpha = 0.1, size = 0.7) +
+    geom_vline(data = pnt, aes(xintercept = icc_a_nonzero),
+               color = "red", linetype = "dotted") +
+    geom_hline(data = pnt, aes(yintercept = kendall_w),
+               color = "red", linetype = "dotted") +
+    geom_point(data = pnt, color = "red") +
+    ggtitle(paste0("Round ", i, " (horizon: ", max(p[round == i,"horiz"]), " weeks)")) +
+    facet_wrap(vars(location_name)) +
+    scale_x_continuous(breaks = c(0,0.5,1),
+                       limits = c(0,1),
+                       expand = c(0,0),
+                       name = "agreement between projection magnitude\n(intraclass correlation coefficient)") +
+    scale_y_continuous(breaks = c(0,0.5,1),
+                       limits = c(0,1),
+                       expand = c(0,0),
+                       name = "agreement between scenario ranks\n(Kendall's W)") +
+    theme_bw(base_size = bs) +
+    theme(legend.position = "bottom",
+          panel.grid.minor = element_blank(),
+          plot.margin = margin(c(0,0,0,0), unit = "cm"),
+          strip.background = element_blank())
+  plt_cap_null[[i]] <- paste0("Agreement for 1,000 null model simulations and the corresponding SMH projections of cumulative hospitalizations for Round ", i, ". Agreement is calculated for projection magnitude (as measured by intraclass correlation coefficient) and scenario ranking (as measured by Kendall's W). Across locations (panels), null model results are shown with black points and SMH results are shown with a red point.")
+  counter <- counter + 1
+}
+```
+
+
+```{r fig-s49-60, fig.height = 8, fig.cap = plt_cap_null, results="asis"}
+for(i in plt_list_null){
+  print(
+      i
+    )
+    cat('\n\n')
+}
+```
