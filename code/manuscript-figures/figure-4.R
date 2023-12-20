@@ -16,9 +16,9 @@ SMH_agreement <- setDT(read.csv("output-data/SMH-analysis/SMH_agreement.csv")) %
 
 
 #### FIGURE 4A -----------------------------------------------------------------
-ex_a <- data.frame(round = 13, 
+ex_a <- data.frame(round = 11, 
                    target = "cum hosp", 
-                   location = "40")
+                   location = "42")
 
 pA <- p[, max_horiz := max(horiz), by =.(round)] %>%
   .[quantile == 0.5 &
@@ -82,7 +82,7 @@ p1 = null_agreement %>%
   geom_hline(data = pnt, aes(yintercept = kendall_w), 
              color = "red", linetype = "dotted") +
   geom_point(data = pnt, color = "red") +
-  geom_point(alpha = 0.2) +
+  geom_point(alpha = 0.3) +
   scale_x_continuous(breaks = c(0,0.5,1),
                      limits = c(0,1),
                      expand = c(0,0), 
@@ -98,7 +98,7 @@ p1 = null_agreement %>%
         strip.background = element_blank())
 p2 = ggplot(data = dns[variable == "icc_a_nonzero"],
             aes(x = x, y = y)) + 
-  geom_line() +
+  geom_line(size = 0.3) +
   geom_segment(data = pnt, 
                aes(x = icc_a_nonzero, xend = icc_a_nonzero, 
                    y = 0, yend = approx(unlist(dns[variable == "icc_a_nonzero", "x"]), 
@@ -106,7 +106,7 @@ p2 = ggplot(data = dns[variable == "icc_a_nonzero"],
                                         pnt$icc_a_nonzero)$y), color = "red", linetype = "dotted") +
   geom_density(aes(x = x),
                . %>% filter(between(x, pnt$icc_a_nonzero, Inf)),
-               stat = 'identity', alpha = 0.25, fill = "red")+
+               stat = 'identity', alpha = 0.25, fill = "red", size = 0.3)+
   scale_x_continuous(breaks = seq(0,1,0.25), 
                      expand = c(0,0), 
                      limits = c(0,1)) + 
@@ -120,7 +120,7 @@ p2 = ggplot(data = dns[variable == "icc_a_nonzero"],
         strip.background = element_blank())
 p3 = ggplot(data = dns[variable == "kendall_w"],
             aes(x = x, y = y)) + 
-  geom_line() +
+  geom_line(size = 0.3) +
   geom_segment(data = pnt, 
                aes(x = kendall_w, xend = kendall_w, 
                    y = 0, yend = approx(unlist(dns[variable == "kendall_w", "x"]), 
@@ -128,7 +128,7 @@ p3 = ggplot(data = dns[variable == "kendall_w"],
                                         pnt$kendall_w)$y), color = "red", linetype = "dotted") +
   geom_density(aes(x = x),
                . %>% filter(between(x, pnt$kendall_w, Inf)),
-               stat = 'identity', alpha = 0.25, fill = "red")+
+               stat = 'identity', alpha = 0.25, fill = "red", size = 0.3)+
   coord_flip() +
   scale_x_continuous(breaks = seq(0,1,0.25), 
                      expand = c(0,0), 
@@ -198,5 +198,3 @@ plot_grid(
   rel_widths = c(0.25, 0.75),
   nrow = 1)
 ggsave("figures/Figure4.pdf", width = 190, height = 150, units = "mm")
-
-
