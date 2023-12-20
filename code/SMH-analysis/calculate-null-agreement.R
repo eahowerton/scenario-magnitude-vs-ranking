@@ -1,5 +1,6 @@
 # load R environment
-renv::init()
+renv::restore()
+
 
 library(data.table)
 library(dplyr)
