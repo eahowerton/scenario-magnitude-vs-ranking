@@ -40,11 +40,13 @@ locations <- setDT(locations)[!(location %in% c("60", "66", "69", "72", "74", "7
 
 # plotting objects
 source("code/manuscript-figures/plotting-utils.R")
+
+# base text size
+sz = 9
 ```
 
-# SIR Simulations
 
-```{r fig-s1, fig.cap="ADD HERE"}
+```{r fig-s1, fig.cap="SIR dynamics of infected individuals for varying transmission rate (beta) and recovery rate (gamma) parameters. Dynamics are shown for three scenarios: no intervention (solid line), non-pharmaceutical interventions (NPIs) that reduce transmission by 30% (short dashed line), and vaccination of approximately 1% of the susceptible population per day (long dashed line).", fig.height = 5}
 source("code/SIR-simulations/functions.R")
 source("code/SIR-simulations/setup_model.R")
 
@@ -73,7 +75,7 @@ ggplot(aes(x = time, y = I, linetype = intervention_id)) +
   facet_grid(cols = vars(beta), rows = vars(gamma), 
              labeller = label_both) + 
   labs(y = "infected individuals") + 
-  theme_bw() + 
+  theme_bw(base_size = sz) + 
   theme(legend.position = "bottom", 
         legend.title = element_blank(), 
         panel.grid = element_blank(), 
@@ -120,7 +122,7 @@ multi_panel_alt  %>%
                        name = "difference in\ncumulative\ninfections",
                        breaks = seq(-500,500, 250),
                        labels = c("-500\nvaccination", "-250", "0", "250", "500\nNPIs")) +
-  theme_bw() +
+  theme_bw(base_size = sz) +
   theme(legend.position = "bottom",
         legend.key.width = unit(0.6, "in"), 
         strip.background = element_blank())
@@ -162,13 +164,13 @@ multi_panel_alt  %>%
                        name = "difference in\npeak\ninfections",
                        breaks = seq(-150,150, 75),
                        labels = c("-150\nvaccination", "-75", "0", "75", "150\nNPIs")) +
-  theme_bw() +
+  theme_bw(base_size = sz) +
   theme(legend.position = "bottom",
         legend.key.width = unit(0.6, "in"), 
         strip.background = element_blank())
 ```
 
-```{r fig-s4, fig.height=6, fig.cap = "Probability of models agreeing about intervention recommendations or estimates of cumulative infections without intervention for different sampling schemes (columns) and number of models agreeing (rows). Probabilities are calculated for a set of models of size two to size ten, either when choosing randomly among all models or among models with “similar” assumptions, defined as those with transmission and recovery rate assumptions within $\\pm$ 0.1, $\\pm$ 0.05 or $\\pm$ 0.15 of a given model. Agreement probability of at least 2, 4, 6, or 8 models is shown for estimates of cumulative cases within 20 infections (2% of population, red), within 50 infections (5% of population, yellow), within 100 infections (10% of population, blue), or recommended intervention (black)."}
+```{r fig-s4, fig.height=6, fig.cap = "Probability of models agreeing about intervention scenario ranking or estimates of cumulative infections without intervention for different sampling schemes (columns) and number of models agreeing (rows). Probabilities are calculated for a set of models of size two to size twelve, either when choosing randomly among all models or among models with “similar” assumptions, defined as those with transmission and recovery rate assumptions within $\\pm$ 0.1, $\\pm$ 0.05 or $\\pm$ 0.15 of a given model. Agreement probability of at least 2, 4, 6, or 8 models is shown for estimates of cumulative cases within 20 infections (2% of population, red), within 50 infections (5% of population, yellow), within 100 infections (10% of population, blue), or intervention scenario ranking (black)."}
 samp <- read.csv("output-data/SIR-simulations/SIR_sample_model_sets.csv")
 setDT(samp)
 
@@ -206,13 +208,13 @@ ggplot(data = plt_data[value %in% seq(2,8,2)],
     labels = c("Estimates agree within 20 cases",
                "Estimates agree within 50 cases",
                "Estimates agree within 100 cases",
-               "Intervention recommendations agree"),
+               "Intervention scenario ranking agrees"),
     values = c(brewer.pal(4, "RdYlBu")[1:3], "black")) +
   #name = "number of models making predictions") + 
   scale_x_continuous(name = "number of models in set") +
   scale_y_continuous(labels = percent, 
                      name = "probability") + 
-  theme_bw() + 
+  theme_bw(base_size = sz) + 
   theme(#axis.title.y = element_blank(), 
     legend.position = "bottom", 
     legend.title = element_blank(),
@@ -222,11 +224,10 @@ ggplot(data = plt_data[value %in% seq(2,8,2)],
     strip.placement = "outside")#, strip.text = element_text(hjust = 0)
 ```
 
-```{r fig-s5, fig.height=5, fig.cap = "ADD HERE"}
+```{r fig-s5, fig.height=7, fig.cap = "Probability of models agreeing about intervention scenario ranking or estimates of cumulative infections without intervention (columns) for different degrees of model similarity (rows). Probabilities are calculated for a set of models of size two to size twelve, either when choosing randomly among all models or among models with “similar” assumptions, defined as those with transmission and recovery rate assumptions within $\\pm$ 0.1, $\\pm$ 0.05 or $\\pm$ 0.15 of a given model. Agreement probability of at least 2, 4, 6, or 8 models is shown for estimates of cumulative cases within 20 infections (2% of population), within 50 infections (5% of population), within 100 infections (10% of population), or intervention scenario ranking. Breakpoints where agreement probability is at least 0.5 is shown with a solid black line and agreement probability is at least 0.9 is shown with a dashed black line."}
 # create data.frames to draw lines on heatmap at 50% 
 stps_50pct <- plt_data %>%
-  .[mod_type %in% c("all", "similar") & 
-      variable %in% c("mag_10", "mag_25", "mag_50", "rec")] %>%
+  .[variable %in% c("mag_10", "mag_25", "mag_50", "rec")] %>%
   .[, less_50pct_flag := ifelse(ncum < 0.5, 1, 0)] %>%
   .[less_50pct_flag == 1] %>%
   .[, .(min_less_50 = min(value)), by = .(s, mod_type, variable)] 
@@ -238,8 +239,7 @@ stps_50pct <- rbindlist(list(
 
 # repeat for 90%
 stps_90pct <- plt_data %>%
-  .[mod_type %in% c("all", "similar") & 
-      variable %in% c("mag_10", "mag_25", "mag_50", "rec")] %>%
+  .[variable %in% c("mag_10", "mag_25", "mag_50", "rec")] %>%
   .[, less_90pct_flag := ifelse(ncum < 0.9, 1, 0)] %>%
   .[less_90pct_flag == 1] %>%
   .[, .(min_less_90 = min(value)), by = .(s, mod_type, variable)]
@@ -251,8 +251,7 @@ stps_90pct <- rbindlist(list(
 
 
 plt_data %>%
-  .[mod_type %in% c("all", "similar") & 
-      variable %in% c("mag_10", "mag_25", "mag_50", "rec")] %>%
+  .[variable %in% c("mag_10", "mag_25", "mag_50", "rec")] %>%
   ggplot(aes(x = s, y = value)) +
   geom_tile(aes(fill = ncum)) + 
   geom_step(data = stps_50pct, 
@@ -266,8 +265,9 @@ plt_data %>%
             linetype = "dashed", 
             size = 0.7) +
   facet_grid(cols = vars(variable), 
-             rows = vars(paste(mod_type, "models")), 
-             labeller = labeller(variable = est_labs)) + 
+             rows = vars(mod_type), 
+             labeller = labeller(variable = est_labs, 
+                                 mod_type = mod_type_labs)) + 
   scale_fill_viridis_c(name = "probability of agreement") + 
   scale_linetype_manual(values = c("solid","dashed")) +
   scale_x_continuous(breaks = 2:12, 
@@ -276,14 +276,14 @@ plt_data %>%
   scale_y_continuous(breaks = 2:12, 
                      expand = c(0,0), 
                      name = "number of models agreeing") + 
-  theme_bw() + 
+  theme_bw(base_size = sz) + 
   theme(legend.key.width = unit(1,"cm"),
         legend.position = "bottom", 
         panel.grid = element_blank(), 
         strip.background = element_blank())
 ```
 
-```{r fig-s6, fig.height=2.5, fig.cap = "ADD HERE"}
+```{r fig-s6, fig.height=2.5, fig.cap = "Results from Fig. 3 replicated with agreement assessed for only two intervention scenarios. For a varying number of models in a set, agreement is measured for projection magnitude across intervention scenarios (using intraclass correlation coefficient, ICC) and ranking of intervention scenarios (using Kendall’s W). Results are shown when models in the set come from all possible models considered (red), and when models are similar (blue). Each point represents one set of randomly selected models from either all possible models considered (red) or a neighborhood of “similar” models (blue, those with transmission and recovery rate assumptions within ±0.1 of a given model). Ellipses show the area within which 95% of points fall. Dotted horizontal lines show agreement that is significant with a p-value of 0.05."}
 n = 2
 kw_sig = data.frame(s = 2:10)
 kw_sig$p_0.05 = qchisq(0.05, df = n-1, lower.tail = FALSE)/(kw_sig$s*(n-1))
@@ -311,7 +311,7 @@ samp %>%
   scale_y_continuous(breaks = c(0,0.5,1),
                      limits = c(0,1), 
                      name = "agreement between ranks\n(Kendall's W)") + 
-  theme_bw() + 
+  theme_bw(base_size = sz) + 
   theme(legend.margin = margin(rep(0,4)),
         legend.position = "bottom",
         legend.title = element_blank(),
@@ -319,6 +319,7 @@ samp %>%
         strip.background = element_blank(), 
         strip.placement = "outside")
 ```
+
 
 ```{r generate-fig-s7-48}
 p <- setDT(read.csv("output-data/SMH-analysis/SMH_ranks.csv"))
@@ -350,7 +351,7 @@ for(i in c(1:7,9,11:16)){
                          labels = c("best", rep("", 5), "worst")) +
       scale_x_continuous(label = unit_format(scale = 1e-3, suffix = ""), 
                          name = paste(j," (K)")) +
-      theme_bw() +
+      theme_bw(base_size = sz) +
       theme(axis.text = element_blank(),
             axis.ticks = element_blank(),
             axis.title.y = element_blank(),
@@ -376,7 +377,7 @@ for(i in c(1:7,9,11:16)){
 }
 ```
 
-```{r fig-s7-48, fig.height = 8, fig.cap = plt_cap, results="asis"}
+```{r fig-s7-20, fig.height = 8, fig.cap = plt_cap, results="asis"}
 for(i in plt_list){
   print(
       i
@@ -413,7 +414,7 @@ for(i in c(1:7,9,11:16)){
     .[, .(x = density(value)$x,
           y = density(value)$y),
       by = .(round, target, location, variable)]
-  plt_list_null[[i]] = null_agreement %>%
+  plt_list_null[[counter]] = null_agreement %>%
     .[round == i &
         target == "cum hosp"] %>%
     ggplot(aes(x = icc_a_nonzero, y = kendall_w)) +
@@ -433,22 +434,89 @@ for(i in c(1:7,9,11:16)){
                        limits = c(0,1),
                        expand = c(0,0),
                        name = "agreement between scenario ranks\n(Kendall's W)") +
-    theme_bw(base_size = bs) +
+    theme_bw(base_size = sz) +
     theme(legend.position = "bottom",
           panel.grid.minor = element_blank(),
           plot.margin = margin(c(0,0,0,0), unit = "cm"),
           strip.background = element_blank())
-  plt_cap_null[[i]] <- paste0("Agreement for 1,000 null model simulations and the corresponding SMH projections of cumulative hospitalizations for Round ", i, ". Agreement is calculated for projection magnitude (as measured by intraclass correlation coefficient) and scenario ranking (as measured by Kendall's W). Across locations (panels), null model results are shown with black points and SMH results are shown with a red point.")
+  plt_cap_null[[counter]] <- paste0("Agreement for 1,000 null model simulations and the corresponding SMH projections of cumulative hospitalizations for Round ", i, ". Agreement is calculated for projection magnitude (as measured by intraclass correlation coefficient) and scenario ranking (as measured by Kendall's W). Across locations (panels), null model results are shown with black points and SMH results are shown with a red point.")
   counter <- counter + 1
 }
 ```
 
 
-```{r fig-s49-60, fig.height = 8, fig.cap = plt_cap_null, results="asis"}
+```{r fig-s21-34, fig.height = 8, fig.cap = plt_cap_null, results="asis"}
 for(i in plt_list_null){
   print(
       i
     )
     cat('\n\n')
 }
+```
+
+```{r all-SMH-results}
+plt_list_all <- list()
+plt_cap_all <- list()
+counter <- 1
+for(i in unique(SMH_agreement$quantile)){
+  plt_list_all[[counter]] <- ggplot(data = SMH_agreement[quantile == i][,horiz := horiz + 3], 
+         aes(x = icc_a, y = kendall_w, color = as.factor(round)))+ 
+    geom_point(size = 0.7, alpha = 0.3) +
+    facet_grid(cols = vars(round), 
+               rows = vars(horiz), 
+               labeller = labeller(round = round_labs_simp, 
+                                   horiz = horiz_labs)) + 
+    scale_x_continuous(breaks = c(0,0.5,1),
+                       limits = c(0,1),
+                       #expand = c(0,0), 
+                       name = "agreement between projection magnitude\n(intraclass correlation coefficient)") +
+    scale_y_continuous(breaks = c(0,0.5,1),
+                       limits = c(0,1), 
+                       #expand = c(0,0), 
+                       name = "agreement between projection ranks\n(Kendall's W)") + 
+    theme_bw(base_size = sz) + 
+    theme(legend.position = "none",
+          strip.background = element_blank())
+  plt_cap_all[[counter]] <- paste0("Agreement between projection magnitude and ranks across evaluated SMH rounds (columns) and SMH projection horizons (rows) for SMH Q", i*100, ". Agreement between projection magnitude is measured by intraclass correlation coefficient, and agreement between scenario ranks is measured by Kendall’s W. Each point represents results for a set of projections from a single round, target, location, week. Maximum projection horizon is shown for each round, but horizon varies by round so not all hoirzons are available for all rounds.")
+  counter <- counter + 1
+}
+```
+
+```{r fig-s35-38, fig.height = 4, fig.cap = plt_cap_all, results="asis"}
+for(i in plt_list_all){
+  print(
+      i
+    )
+    cat('\n\n')
+}
+```
+
+```{r fig-s39, fig.height = 3, fig.cap = "Comparison of intraclass correlation coefficient (ICC) and Kendall’s W between quantiles. Each metric was assessed on the projected median, as well as Q25 and Q75. The left panel shows comparisons between Q25 and Q50, and the right panel shows comparisons between Q75 and Q50. Each point represents one projection  (for a single round, location). "}
+p1 <- SMH_agreement %>%
+  .[, quantile_txt := paste0("Q", quantile*100)] %>%
+  data.table::dcast(round + target + target_end_date + horiz + location ~ quantile_txt, value.var = c("icc_a", "kendall_w")) %>% 
+  ggplot(aes(x = icc_a_Q75 - icc_a_Q50, y = kendall_w_Q75-kendall_w_Q50)) +
+  geom_hline(aes(yintercept = 0)) + 
+  geom_vline(aes(xintercept = 0)) +
+  geom_point(size = 1.5, alpha = 0.2) + 
+  scale_x_continuous(name = "ICC (Q75) - ICC (Q50)", 
+                     limits = c(-1,1)*0.4) +
+  scale_y_continuous(name = "Kendall W (Q75) - Kendall W (Q50)", 
+                     limits = c(-1,1)*0.4) +
+  theme_bw(base_size = sz) + 
+  theme(panel.grid = element_blank())
+p2 <- SMH_agreement %>%
+  .[, quantile_txt := paste0("Q", quantile*100)] %>%
+  data.table::dcast(round + target + target_end_date + horiz + location ~ quantile_txt, value.var = c("icc_a", "kendall_w")) %>% 
+  ggplot(aes(x = icc_a_Q25 - icc_a_Q50, y = kendall_w_Q25-kendall_w_Q50)) +
+  geom_hline(aes(yintercept = 0)) + 
+  geom_vline(aes(xintercept = 0)) +
+  geom_point(size = 1.5, alpha = 0.2) + 
+  scale_x_continuous(name = "ICC (Q25) - ICC (Q50)", 
+                     limits = c(-1,1)*0.4) +
+  scale_y_continuous(name = "Kendall W (Q25) - Kendall W (Q50)", 
+                     limits = c(-1,1)*0.4) +
+  theme_bw(base_size = sz) + 
+  theme(panel.grid = element_blank())
+plot_grid(p2, p1, nrow = 1)
 ```

@@ -23,7 +23,7 @@ names(mod_type_labs) <- c("all",
 est_labs <- c("Estimates agree within\n20 infections",
               "Estimates agree within\n50 infections",
               "Estimates agree within\n100 infections",
-              "Intervention\nrecommendations agree")
+              "Intervention scenario\nranking agrees")
 names(est_labs) <- c("mag_10", "mag_25", "mag_50", "rec")
 
 
