@@ -400,22 +400,16 @@ SMH_agreement <- setDT(read.csv("output-data/SMH-analysis/SMH_agreement.csv")) %
 plt_list_null <- list()
 plt_cap_null <- list()
 counter <- 1
+samps <- sample(1:1000, 500) # randomly select 100 samples to plot (for simiplicity)
 for(i in c(1:7,9,11:16)){
   pnt <- SMH_agreement  %>%
     .[horiz == max_horiz &
         quantile == 0.5 &
         round == i &
         target == "cum hosp"]
-  dns <- null_agreement %>%
-    .[round == i &
-        target == "cum hosp"] %>%
-    .[, .(round, target, location, sim_id, kendall_w, icc_a_nonzero)] %>%
-    data.table::melt(c("round", "target", "location", "sim_id")) %>%
-    .[, .(x = density(value)$x,
-          y = density(value)$y),
-      by = .(round, target, location, variable)]
   plt_list_null[[counter]] = null_agreement %>%
     .[round == i &
+        sim_id %in% samps &
         target == "cum hosp"] %>%
     ggplot(aes(x = icc_a_nonzero, y = kendall_w)) +
     geom_point(alpha = 0.1, size = 0.7) +
@@ -439,7 +433,7 @@ for(i in c(1:7,9,11:16)){
           panel.grid.minor = element_blank(),
           plot.margin = margin(c(0,0,0,0), unit = "cm"),
           strip.background = element_blank())
-  plt_cap_null[[counter]] <- paste0("Agreement for 1,000 null model simulations and the corresponding SMH projections of cumulative hospitalizations for Round ", i, ". Agreement is calculated for projection magnitude (as measured by intraclass correlation coefficient) and scenario ranking (as measured by Kendall's W). Across locations (panels), null model results are shown with black points and SMH results are shown with a red point.")
+  plt_cap_null[[counter]] <- paste0("Agreement for null model simulations and the corresponding SMH projections of cumulative hospitalizations for Round ", i, ". Agreement is calculated for projection magnitude (as measured by intraclass correlation coefficient) and scenario ranking (as measured by Kendall's W). Across locations (panels), null model results are shown with black points and SMH results are shown with a red point. For simplicity, 500 out of the 1,000 null model simulations were randomly selected and  plotted.")
   counter <- counter + 1
 }
 ```
