@@ -46,7 +46,7 @@ names(round_labs) <- c(1:7, 9, 11:16)
 round_labs_simp <- paste("Round",c(1:7, 9, 11:16))
 names(round_labs_simp) <- c(1:7, 9, 11:16)
 
-horiz_labs <- paste(c(4,8,12,16,20,26,40,50,52), "weeks ahead")
+horiz_labs <- paste(c(4,8,12,16,20,26,40,50,52), "wks\nahead")
 names(horiz_labs) <- c(4,8,12,16,20,26,40,50,52)
 
 #### OTHER PLOT SETTINGS -------------------------------------------------------

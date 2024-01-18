@@ -1,5 +1,5 @@
 ---
-title: "Supplementary material for:\nWhen do we need multipel infectious disease models? Agreement between projection rank and magnitude in a multi-model setting"
+title: "Supplementary material for:\nWhen do we need multiple infectious disease models? Agreement between projection rank and magnitude in a multi-model setting"
 author: 
   - La Keisha Wade-Malone, The Pennsylvania State University
   - Emily Howerton, The Pennsylvania State University
@@ -46,7 +46,7 @@ sz = 9
 ```
 
 
-```{r fig-s1, fig.cap="SIR dynamics of infected individuals for varying transmission rate (beta) and recovery rate (gamma) parameters. Dynamics are shown for three scenarios: no intervention (solid line), non-pharmaceutical interventions (NPIs) that reduce transmission by 30% (short dashed line), and vaccination of approximately 1% of the susceptible population per day (long dashed line).", fig.height = 5}
+```{r fig-s1, fig.cap="Susceptible-Infected-Recovered (SIR) dynamics of infected individuals for varying transmission rate (beta) and recovery rate (gamma) parameters. Dynamics are shown for three scenarios: no intervention (solid line), non-pharmaceutical interventions (NPIs) that reduce transmission by 30% (short dashed line), and vaccination of approximately 1% of the susceptible population per day (long dashed line). Data from SIR model simulations.", fig.height = 5}
 source("code/SIR-simulations/functions.R")
 source("code/SIR-simulations/setup_model.R")
 
@@ -83,7 +83,7 @@ ggplot(aes(x = time, y = I, linetype = intervention_id)) +
 # ggsave("figures/figureS1.pdf", width = 8.5, height = 7)
 ```
 
-```{r fig-s2, fig.height=6, fig.cap = "Results from Fig. 1B repeated for varying intervention efficacies (vaccination rate ranging from 0.5% to 2% of the population per day, and NPI reduction of the transmission rate ranging from 10% to 40%). Each panel shows a large part of the space of possible models across biological uncertainties (transmission rate, $\\beta$, and recovery rate, $\\gamma$). Each position on the graph represents an individual model, the color of the tile represents the recommended intervention (orange: non-pharmaceutical interventions, NPIs; purple: vaccination), and the intensity of the color is the magnitude of the projected difference in cumulative infections. Colors have been rescaled from Fig. 1. The gray line shows where the difference in cumulative infections is 0, or where neither intervention is recommended over the other. Black contours show sample values of individual model $R_0$ = 2,3.5, 6, and 10."}
+```{r fig-s2, fig.height=6, fig.cap = "Results from Fig. 1B repeated for varying intervention efficacies (vaccination rate ranging from 0.5% to 2% of the population per day, and NPI reduction of the transmission rate ranging from 10% to 40%). Each panel shows a large part of the space of possible models across biological uncertainties (transmission rate, $\\beta$, and recovery rate, $\\gamma$). Each position on the graph represents an individual model, the color of the tile represents the recommended intervention (orange: non-pharmaceutical interventions, NPIs; purple: vaccination), and the intensity of the color is the magnitude of the projected difference in cumulative infections. Colors have been rescaled from Fig. 1. The gray line shows where the difference in cumulative infections is 0, or where neither intervention is recommended over the other. Black contours show sample values of individual model $R_0$ = 2,3.5, 6, and 10. Data from SIR model simulations."}
 multi_panel <- read.csv("output-data/SIR-simulations/SIR_varying_intervention_params.csv")
 
 multi_panel_alt <- multi_panel %>%
@@ -128,7 +128,7 @@ multi_panel_alt  %>%
         strip.background = element_blank())
 ```
 
-```{r fig-s3, fig.height=6, fig.cap = "Model results for minimizing peak infections. Results are shown for varying intervention efficacies (vaccination rate ranging from 0.5% to 2% of the population per day, and NPI reduction of the transmission rate ranging from 10% to 40%). Each panel shows a large part of the space of possible models across biological uncertainties (transmission rate, $\\beta$, and recovery rate, $\\gamma$). Each position on the graph represents an individual model, the color of the tile represents the recommended intervention (orange: non-pharmaceutical interventions, NPIs; purple: vaccination), and the intensity of the color is the magnitude of the projected difference in peak infections. Colors have been rescaled from Figure 1. The gray line shows where the difference in peak infections is 0, or where neither intervention is recommended over the other. Black contours show sample values of individual model $R_0$ = 2,3.5, 6, and 10."}
+```{r fig-s3, fig.height=6, fig.cap = "Model results for minimizing peak infections. Results are shown for varying intervention efficacies (vaccination rate ranging from 0.5% to 2% of the population per day, and NPI reduction of the transmission rate ranging from 10% to 40%). Each panel shows a large part of the space of possible models across biological uncertainties (transmission rate, $\\beta$, and recovery rate, $\\gamma$). Each position on the graph represents an individual model, the color of the tile represents the recommended intervention (orange: non-pharmaceutical interventions, NPIs; purple: vaccination), and the intensity of the color is the magnitude of the projected difference in peak infections. Colors have been rescaled from Figure 1. The gray line shows where the difference in peak infections is 0, or where neither intervention is recommended over the other. Black contours show sample values of individual model $R_0$ = 2,3.5, 6, and 10. Data from SIR model simulations."}
 multi_panel_alt <- multi_panel %>%
   select(beta, gamma, cases, v_rate, d_rate, peak_cases, intervention) %>%
   reshape2::melt(c("beta", "gamma", "v_rate", "d_rate", "intervention")) %>%
@@ -170,7 +170,7 @@ multi_panel_alt  %>%
         strip.background = element_blank())
 ```
 
-```{r fig-s4, fig.height=6, fig.cap = "Probability of models agreeing about intervention scenario ranking or estimates of cumulative infections without intervention for different sampling schemes (columns) and number of models agreeing (rows). Probabilities are calculated for a set of models of size two to size twelve, either when choosing randomly among all models or among models with “similar” assumptions, defined as those with transmission and recovery rate assumptions within $\\pm$ 0.1, $\\pm$ 0.05 or $\\pm$ 0.15 of a given model. Agreement probability of at least 2, 4, 6, or 8 models is shown for estimates of cumulative cases within 20 infections (2% of population, red), within 50 infections (5% of population, yellow), within 100 infections (10% of population, blue), or intervention scenario ranking (black)."}
+```{r fig-s4, fig.height=6, fig.cap = "Probability of models agreeing about intervention scenario ranking or estimates of cumulative infections without intervention for different sampling schemes (columns) and number of models agreeing (rows). Probabilities are calculated for a set of models of size two to size twelve, either when choosing randomly among all models or among models with “similar” assumptions, defined as those with transmission and recovery rate assumptions within $\\pm$ 0.1, $\\pm$ 0.05 or $\\pm$ 0.15 of a given model. Agreement probability of at least 2, 4, 6, or 8 models is shown for estimates of cumulative cases within 20 infections (2% of population, red), within 50 infections (5% of population, yellow), within 100 infections (10% of population, blue), or intervention scenario ranking (black). Data from SIR model simulations."}
 samp <- read.csv("output-data/SIR-simulations/SIR_sample_model_sets.csv")
 setDT(samp)
 
@@ -224,7 +224,7 @@ ggplot(data = plt_data[value %in% seq(2,8,2)],
     strip.placement = "outside")#, strip.text = element_text(hjust = 0)
 ```
 
-```{r fig-s5, fig.height=7, fig.cap = "Probability of models agreeing about intervention scenario ranking or estimates of cumulative infections without intervention (columns) for different degrees of model similarity (rows). Probabilities are calculated for a set of models of size two to size twelve, either when choosing randomly among all models or among models with “similar” assumptions, defined as those with transmission and recovery rate assumptions within $\\pm$ 0.1, $\\pm$ 0.05 or $\\pm$ 0.15 of a given model. Agreement probability of at least 2, 4, 6, or 8 models is shown for estimates of cumulative cases within 20 infections (2% of population), within 50 infections (5% of population), within 100 infections (10% of population), or intervention scenario ranking. Breakpoints where agreement probability is at least 0.5 is shown with a solid black line and agreement probability is at least 0.9 is shown with a dashed black line."}
+```{r fig-s5, fig.height=7, fig.cap = "Probability of models agreeing about intervention scenario ranking or estimates of cumulative infections without intervention (columns) for different degrees of model similarity (rows). Probabilities are calculated for a set of models of size two to size twelve, either when choosing randomly among all models or among models with “similar” assumptions, defined as those with transmission and recovery rate assumptions within $\\pm$ 0.1, $\\pm$ 0.05 or $\\pm$ 0.15 of a given model. Agreement probability of at least 2, 4, 6, or 8 models is shown for estimates of cumulative cases within 20 infections (2% of population), within 50 infections (5% of population), within 100 infections (10% of population), or intervention scenario ranking. Breakpoints where agreement probability is at least 0.5 is shown with a solid black line and agreement probability is at least 0.9 is shown with a dashed black line. Data from SIR model simulations."}
 # create data.frames to draw lines on heatmap at 50% 
 stps_50pct <- plt_data %>%
   .[variable %in% c("mag_10", "mag_25", "mag_50", "rec")] %>%
@@ -283,7 +283,7 @@ plt_data %>%
         strip.background = element_blank())
 ```
 
-```{r fig-s6, fig.height=2.5, fig.cap = "Results from Fig. 3 replicated with agreement assessed for only two intervention scenarios. For a varying number of models in a set, agreement is measured for projection magnitude across intervention scenarios (using intraclass correlation coefficient, ICC) and ranking of intervention scenarios (using Kendall’s W). Results are shown when models in the set come from all possible models considered (red), and when models are similar (blue). Each point represents one set of randomly selected models from either all possible models considered (red) or a neighborhood of “similar” models (blue, those with transmission and recovery rate assumptions within ±0.1 of a given model). Ellipses show the area within which 95% of points fall. Dotted horizontal lines show agreement that is significant with a p-value of 0.05."}
+```{r fig-s6, fig.height=2.5, fig.cap = "Results from Fig. 3 replicated with agreement assessed for only two intervention scenarios. For a varying number of models in a set, agreement is measured for projection magnitude across intervention scenarios (using intraclass correlation coefficient, ICC) and ranking of intervention scenarios (using Kendall’s W). Results are shown when models in the set come from all possible models considered (red), and when models are similar (blue). Each point represents one set of randomly selected models from either all possible models considered (red) or a neighborhood of “similar” models (blue, those with transmission and recovery rate assumptions within ±0.1 of a given model). Ellipses show the area within which 95% of points fall. Dotted horizontal lines show agreement that is significant with a p-value of 0.05. Data from SIR model simulations."}
 n = 2
 kw_sig = data.frame(s = 2:10)
 kw_sig$p_0.05 = qchisq(0.05, df = n-1, lower.tail = FALSE)/(kw_sig$s*(n-1))
@@ -321,59 +321,57 @@ samp %>%
 ```
 
 
-```{r generate-fig-s7-48}
+```{r generate-fig-s7-20}
 p <- setDT(read.csv("output-data/SMH-analysis/SMH_ranks.csv"))
 plt_list <- list()
 plt_cap <- list()
 counter <- 1
-for(i in c(1:7,9,11:16)){
-  for(j in c("cum hosp")){
-  #for(j in c("cum case", "cum hosp", "cum death")){
-    plt_list[[counter]] <- p[target == j & 
-                               round == i &
-                               quantile == 0.5 &
-                               horiz == max_horiz] %>%
-      .[, n_mods := length(unique(model_name)), by = .(location, round)] %>%
-      ggplot() + 
-      geom_point(aes(x = value, 
-                     y = paste0(scenario_letter, model_name), 
-                     color = as.factor(r)), 
-                 size = 0.7) +
-      geom_hline(aes(yintercept = n_mods + 0.5)) +
-      geom_hline(aes(yintercept = 2*n_mods + 0.5)) +
-      geom_hline(aes(yintercept = 3*n_mods + 0.5)) +
-      geom_hline(aes(yintercept = 4*n_mods + 0.5)) +
-      ggtitle(paste0("Round ", i, " (horizon: ", max(p[round == i,"horiz"]), " weeks)")) +
-      facet_wrap(vars(location_name), scales = "free") +
-      scale_color_manual(breaks = seq(1, 4, 0.5), 
-                         values = rev(brewer.pal(11,"RdYlBu")[c(2:4,5,8:10)]), 
-                         name = "rank", 
-                         labels = c("best", rep("", 5), "worst")) +
-      scale_x_continuous(label = unit_format(scale = 1e-3, suffix = ""), 
-                         name = paste(j," (K)")) +
-      theme_bw(base_size = sz) +
-      theme(axis.text = element_blank(),
-            axis.ticks = element_blank(),
-            axis.title.y = element_blank(),
-            legend.position = "none",
-            panel.grid.minor = element_blank(), 
-            panel.spacing = unit(0, "lines"),
-            strip.background = element_blank())
-    n_mods <- median(p[target == j & 
-                         round == i &
-                         horiz == max_horiz] %>%
-                       .[, n_mods := length(unique(model_name)), by = .(location, round)] %>% 
-                       pull(n_mods))
-    plt_cap[[i]] <- paste0("COVID-19 Scenario Modeling Hub projections of cumulative ", 
-                           ifelse(j == "cum case", "cases", 
-                                  ifelse(j == "cum hosp", "hospitalizations", "deaths")), 
-                           " for Round ", i, ". Projections are collected from ", n_mods, 
-                           " models for four scenarios. Across locations (panels), projections are shown for each scenario 
+rounds <- c(1:7,9,11:16)
+for(i in 1:length(rounds)){
+  rnd_i = rounds[i]
+  plt_list[[counter]] <- p[target == "cum hosp" & 
+                             round == rnd_i &
+                             quantile == 0.5 &
+                             horiz == max_horiz] %>%
+    .[, n_mods := length(unique(model_name)), by = .(location)] %>%
+    ggplot() + 
+    geom_point(aes(x = value, 
+                   y = paste0(scenario_letter, model_name), 
+                   color = as.factor(r)), 
+               size = 0.7) +
+    geom_hline(aes(yintercept = n_mods + 0.5)) +
+    geom_hline(aes(yintercept = 2*n_mods + 0.5)) +
+    geom_hline(aes(yintercept = 3*n_mods + 0.5)) +
+    geom_hline(aes(yintercept = 4*n_mods + 0.5)) +
+    ggtitle(paste0("Round ", rnd_i, " (horizon: ", max(p[round == rnd_i,"horiz"]), " weeks)")) +
+    facet_wrap(vars(location_name), scales = "free") +
+    scale_color_manual(breaks = seq(1, 4, 0.5), 
+                       values = rev(brewer.pal(11,"RdYlBu")[c(2:4,5,8:10)]), 
+                       name = "rank", 
+                       labels = c("best", rep("", 5), "worst")) +
+    scale_x_continuous(label = unit_format(scale = 1e-3, suffix = ""), 
+                       name = "cum hosp (K)") +
+    theme_bw(base_size = sz-1) +
+    theme(axis.text = element_blank(),
+          axis.ticks = element_blank(),
+          axis.title.y = element_blank(),
+          legend.position = "none",
+          panel.grid.minor = element_blank(), 
+          panel.spacing = unit(0, "lines"),
+          strip.background = element_blank())
+  n_mods <- median(p[target == "cum hosp" & 
+                       round == rnd_i &
+                       horiz == max_horiz] %>%
+                     .[, n_mods := length(unique(model_name)), by = .(location)] %>% 
+                     pull(n_mods))
+  plt_cap[[i]] <- paste0("COVID-19 Scenario Modeling Hub projections of cumulative hospitalizations for Round ",
+                         rnd_i, ". Projections are collected from ", n_mods, 
+                         " models for four scenarios. Across locations (panels), projections are shown for each scenario 
                            (separated by horizontal black lines) from each model (individual points), points are colored 
                            based on the rank of that scenario for each model (blue is lowest projection, and red 
-                           is highest projection).")
-    counter <- counter + 1
-  } 
+                           is highest projection). Data from https://github.com/midas-network/covid19-scenario-hub_evaluation,
+                           https://zenodo.org/record/8415147.")
+  counter <- counter + 1
 }
 ```
 
@@ -399,16 +397,16 @@ SMH_agreement <- setDT(read.csv("output-data/SMH-analysis/SMH_agreement.csv")) %
   .[, max_horiz := max(horiz), by =.(round)]
 plt_list_null <- list()
 plt_cap_null <- list()
-counter <- 1
 samps <- sample(1:1000, 500) # randomly select 100 samples to plot (for simiplicity)
-for(i in c(1:7,9,11:16)){
+for(i in 1:length(rounds)){
+  rnd_i = rounds[i]
   pnt <- SMH_agreement  %>%
     .[horiz == max_horiz &
         quantile == 0.5 &
-        round == i &
+        round == rnd_i &
         target == "cum hosp"]
-  plt_list_null[[counter]] = null_agreement %>%
-    .[round == i &
+  plt_list_null[[i]] = null_agreement %>%
+    .[round == rnd_i &
         sim_id %in% samps &
         target == "cum hosp"] %>%
     ggplot(aes(x = icc_a_nonzero, y = kendall_w)) +
@@ -418,23 +416,24 @@ for(i in c(1:7,9,11:16)){
     geom_hline(data = pnt, aes(yintercept = kendall_w),
                color = "red", linetype = "dotted") +
     geom_point(data = pnt, color = "red") +
-    ggtitle(paste0("Round ", i, " (horizon: ", max(p[round == i,"horiz"]), " weeks)")) +
+    ggtitle(paste0("Round ", rnd_i, " (horizon: ", max(p[round == rnd_i,"horiz"]), " weeks)")) +
     facet_wrap(vars(location_name)) +
-    scale_x_continuous(breaks = c(0,0.5,1),
+    scale_x_continuous(breaks = c(0,1),
+                       minor_breaks = c(0.5),
                        limits = c(0,1),
-                       expand = c(0,0),
+                       #expand = c(0,0),
                        name = "agreement between projection magnitude\n(intraclass correlation coefficient)") +
-    scale_y_continuous(breaks = c(0,0.5,1),
+    scale_y_continuous(breaks = c(0,1),
+                       minor_breaks = c(0.5),
                        limits = c(0,1),
-                       expand = c(0,0),
+                       #expand = c(0,0),
                        name = "agreement between scenario ranks\n(Kendall's W)") +
-    theme_bw(base_size = sz) +
+    theme_bw(base_size = sz-1) +
     theme(legend.position = "bottom",
-          panel.grid.minor = element_blank(),
+          # panel.grid.minor = element_blank(),
           plot.margin = margin(c(0,0,0,0), unit = "cm"),
           strip.background = element_blank())
-  plt_cap_null[[counter]] <- paste0("Agreement for null model simulations and the corresponding SMH projections of cumulative hospitalizations for Round ", i, ". Agreement is calculated for projection magnitude (as measured by intraclass correlation coefficient) and scenario ranking (as measured by Kendall's W). Across locations (panels), null model results are shown with black points and SMH results are shown with a red point. For simplicity, 500 out of the 1,000 null model simulations were randomly selected and  plotted.")
-  counter <- counter + 1
+  plt_cap_null[[i]] <- paste0("Agreement for null model simulations and the corresponding SMH projections of cumulative hospitalizations for Round ", rnd_i, ". Agreement is calculated for projection magnitude (as measured by intraclass correlation coefficient) and scenario ranking (as measured by Kendall's W). Across locations (panels), null model results are shown with black points and SMH results are shown with a red point. For simplicity, 500 out of the 1,000 null model simulations were randomly selected and  plotted. Data from agreement analysis of SMH projections.")
 }
 ```
 
@@ -460,23 +459,24 @@ for(i in unique(SMH_agreement$quantile)){
                rows = vars(horiz), 
                labeller = labeller(round = round_labs_simp, 
                                    horiz = horiz_labs)) + 
-    scale_x_continuous(breaks = c(0,0.5,1),
+    scale_x_continuous(breaks = c(0,1),
+                       minor_breaks = c(0.5),
                        limits = c(0,1),
                        #expand = c(0,0), 
                        name = "agreement between projection magnitude\n(intraclass correlation coefficient)") +
-    scale_y_continuous(breaks = c(0,0.5,1),
-                       limits = c(0,1), 
+    scale_y_continuous(breaks = c(0,1),
+                       minor_breaks = c(0.5),
                        #expand = c(0,0), 
                        name = "agreement between projection ranks\n(Kendall's W)") + 
-    theme_bw(base_size = sz) + 
+    theme_bw(base_size = sz-1) + 
     theme(legend.position = "none",
           strip.background = element_blank())
-  plt_cap_all[[counter]] <- paste0("Agreement between projection magnitude and ranks across evaluated SMH rounds (columns) and SMH projection horizons (rows) for SMH Q", i*100, ". Agreement between projection magnitude is measured by intraclass correlation coefficient, and agreement between scenario ranks is measured by Kendall’s W. Each point represents results for a set of projections from a single round, target, location, week. Maximum projection horizon is shown for each round, but horizon varies by round so not all hoirzons are available for all rounds.")
+  plt_cap_all[[counter]] <- paste0("Agreement between projection magnitude and ranks across evaluated SMH rounds (columns) and SMH projection horizons (rows) for SMH Q", i*100, ". Agreement between projection magnitude is measured by intraclass correlation coefficient, and agreement between scenario ranks is measured by Kendall’s W. Each point represents results for a set of projections from a single round, target, location, week. Maximum projection horizon is shown for each round, but horizon varies by round so not all hoirzons are available for all rounds. Data from agreement analysis of SMH projections.")
   counter <- counter + 1
 }
 ```
 
-```{r fig-s35-38, fig.height = 4, fig.cap = plt_cap_all, results="asis"}
+```{r fig-s35-38, fig.cap = plt_cap_all, results="asis"}
 for(i in plt_list_all){
   print(
       i
@@ -485,7 +485,7 @@ for(i in plt_list_all){
 }
 ```
 
-```{r fig-s39, fig.height = 3, fig.cap = "Comparison of intraclass correlation coefficient (ICC) and Kendall’s W between quantiles. Each metric was assessed on the projected median, as well as Q25 and Q75. The left panel shows comparisons between Q25 and Q50, and the right panel shows comparisons between Q75 and Q50. Each point represents one projection  (for a single round, location). "}
+```{r fig-s39, fig.height = 3, fig.cap = "Comparison of intraclass correlation coefficient (ICC) and Kendall’s W between quantiles. Each metric was assessed on the projected median, as well as Q25 and Q75. The left panel shows comparisons between Q25 and Q50, and the right panel shows comparisons between Q75 and Q50. Each point represents one projection  (for a single round, location). Data from agreement analysis of SMH projections."}
 p1 <- SMH_agreement %>%
   .[, quantile_txt := paste0("Q", quantile*100)] %>%
   data.table::dcast(round + target + target_end_date + horiz + location ~ quantile_txt, value.var = c("icc_a", "kendall_w")) %>% 
