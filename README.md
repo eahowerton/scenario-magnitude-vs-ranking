@@ -1,6 +1,6 @@
 # When do we need multiple infectious disease models? Agreement between projection rank and magnitude in a multi-model setting
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10498172.svg)](https://doi.org/10.5281/zenodo.10498172)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10529073.svg)](https://doi.org/10.5281/zenodo.10529073)
 
 This repository includes all code and data necessary to recreate the analyses for the manuscript:
 Wade-Malone LK, Howerton E, Probert WJM, Runge MC, Viboud C, Shea K. *When do we need multiple infectious disease models? Agreement between projection rank and magnitude in a multi-model setting.* Submitted 2023. 
