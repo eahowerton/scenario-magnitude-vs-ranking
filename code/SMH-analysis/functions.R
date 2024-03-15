@@ -12,8 +12,8 @@ calculate_agreement_SMH <- function(k,
     t <- est_thresh_abs[j]
     n_agree_mag <- copy(k) 
     n_agree_mag <- n_agree_mag %>% 
-      .[, thresh_u := value + t*population] %>% 
-      .[, thresh_l := value - t*population]
+      .[, thresh_u := value + t*population/1E5] %>% 
+      .[, thresh_l := value - t*population/1E5]
     n_agree_mag <- sapply(1:(num_models_in_set+1), 
                           function(i){return(with(n_agree_mag, 
                                                   length(which(value <= thresh_u[i] & 
@@ -37,3 +37,4 @@ calculate_agreement_SMH <- function(k,
   names(ret) = c("n_models","n_agree_rec", paste0("n_agree_mag_abs_",est_thresh_abs), paste0("n_agree_mag_rel_",est_thresh_rel), paste0("window_rel_",est_thresh_rel))
   return(ret)
 }
+
