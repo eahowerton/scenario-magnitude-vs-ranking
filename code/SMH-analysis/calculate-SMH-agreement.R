@@ -5,6 +5,7 @@ library(data.table)
 library(dplyr)
 
 source("code/irr_functions.R")
+source("code/functions.R")
 #source("code/SMH-analysis/load-SMH-projections.R")
 
 #### CALCULATE AGREEMENT METRICS FOR SMH PROJECTIONS ---------------------------
