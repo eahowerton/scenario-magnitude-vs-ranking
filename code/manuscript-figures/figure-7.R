@@ -18,7 +18,7 @@ null_agreement <- setDT(read.csv("output-data/SMH-analysis/null_agreement.csv"))
             X = NULL)]
 
 
-#### FIGURE 5A -----------------------------------------------------------------
+#### FIGURE 7A -----------------------------------------------------------------
 comp_null_smh <- null_agreement %>%
   rename(kendall_w_null = kendall_w) %>%
   rename(icc_a_nonzero_null = icc_a_nonzero) %>%
@@ -57,7 +57,7 @@ pA <- comp_null_smh %>%
         strip.background = element_blank())
 
 
-#### FIGURE 5B -----------------------------------------------------------------
+#### FIGURE 7B -----------------------------------------------------------------
 # summarize SMH agreement results relative to null results
 null_agreement_sig <- null_agreement %>%
   rename(kendall_w_null = kendall_w) %>%

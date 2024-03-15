@@ -15,7 +15,7 @@ SMH_agreement <- setDT(read.csv("output-data/SMH-analysis/SMH_agreement.csv")) %
             X = NULL)]
 
 
-#### FIGURE 4A -----------------------------------------------------------------
+#### FIGURE 6A -----------------------------------------------------------------
 ex_a <- data.frame(round = 11, 
                    target = "cum hosp", 
                    location = "42")
@@ -53,7 +53,7 @@ pA <- p[, max_horiz := max(horiz), by =.(round)] %>%
         strip.placement = "outside")
 
 
-#### FIGURE 4B -----------------------------------------------------------------
+#### FIGURE 6B -----------------------------------------------------------------
 pnt <- SMH_agreement  %>%
   .[, horiz := (target_end_date - min(target_end_date))/7 + 1, by = .(round)] %>%
   .[, max_horiz := max(horiz), by =.(round)] %>%
@@ -150,10 +150,10 @@ pB = plot_grid(p2, NULL ,p1, p3,
                ncol = 2, 
                rel_widths = c(0.8,0.2), 
                rel_heights = c(0.2,0.8))
-ggsave("figures/Figure4B.pdf", width = 190*0.35, height = 190*0.35, units = "mm")
+ggsave("figures/Figure6B.pdf", width = 190*0.35, height = 190*0.35, units = "mm")
 
 
-#### FIGURE 4C -----------------------------------------------------------------
+#### FIGURE 6C -----------------------------------------------------------------
 pC <- SMH_agreement  %>%
   .[locations, on = .(location)] %>%
   .[, horiz := (target_end_date - min(target_end_date))/7 + 1, by = .(round)] %>%
@@ -185,7 +185,7 @@ pC <- SMH_agreement  %>%
         strip.background = element_blank())
 
 
-#### COMBINE INTO FIGURE 4 -----------------------------------------------------
+#### COMBINE INTO FIGURE 6 -----------------------------------------------------
 plot_grid(
   plot_grid(pA, pB, 
             ncol = 1, 
@@ -197,4 +197,4 @@ plot_grid(
   label_size = bs,
   rel_widths = c(0.25, 0.75),
   nrow = 1)
-ggsave("figures/Figure4.pdf", width = 190, height = 150, units = "mm")
+ggsave("figures/Figure6.pdf", width = 190, height = 150, units = "mm")
