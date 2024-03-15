@@ -32,7 +32,8 @@ samp = lapply(1:n_sims, approx_agreement,
                           v_rate = pick_v)], 
               n_mods = n_models,
               max_set_size = 12, 
-              est_thresh = c(10,25,50)
+              est_thresh_abs = c(10,25,50),
+              est_thresh_rel = c(0.02,0.05,0.07,0.1)
 )
 
 # repeat for "similar" models only
@@ -42,7 +43,8 @@ samp_sim = lapply(1:n_sims, approx_agreement,
                               v_rate = pick_v)],
                   n_mods = n_models,
                   max_set_size = 12, 
-                  est_thresh = c(10,25,50),
+                  est_thresh_abs = c(10,25,50),
+                  est_thresh_rel = c(0.02,0.05,0.1),
                   similar_flag = TRUE)
 
 # repeat for "similar" models with smaller tol
@@ -52,7 +54,8 @@ samp_sim_lwr = lapply(1:n_sims, approx_agreement,
                                   v_rate = pick_v)],
                       n_mods = n_models,
                       max_set_size = 12, 
-                      est_thresh = c(10,25,50),
+                      est_thresh_abs = c(10,25,50),
+                      est_thresh_rel = c(0.02,0.05,0.1),
                       similar_flag = TRUE, 
                       sim_thresh = 0.05)
 
@@ -63,7 +66,8 @@ samp_sim_upr = lapply(1:n_sims, approx_agreement,
                                   v_rate = pick_v)],
                       n_mods = n_models,
                       max_set_size = 12, 
-                      est_thresh = c(10,25,50),
+                      est_thresh_abs = c(10,25,50),
+                      est_thresh_rel = c(0.02,0.05,0.1),
                       similar_flag = TRUE, 
                       sim_thresh = 0.15)
 
