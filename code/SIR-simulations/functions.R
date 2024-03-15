@@ -26,7 +26,8 @@ approx_agreement <- function(it,
                        dat,
                        n_mods, 
                        max_set_size = 10, 
-                       est_thresh = seq(10,50, by = 5), 
+                       est_thresh_abs = seq(10,50, by = 5), 
+                       est_thresh_rel = c(0.02, 0.05, 0.1),
                        similar_flag = FALSE, 
                        sim_thresh = 0.1){
   d <- list()
@@ -41,7 +42,8 @@ approx_agreement <- function(it,
                                 num_models_in_set = i)
     # calculate agreement
     a <- calculate_agreement(k, 
-                             est_thresh, 
+                             est_thresh_abs,
+                             est_thresh_rel,
                              num_models_in_set = i)
     n_agree_rec <- a[["n_agree_rec"]]
     n_agree_mag <- a[["n_agree_mag"]]
@@ -76,8 +78,8 @@ approx_agreement <- function(it,
     d[[i]] <- data.frame(it = it,
                          id = paste(sort(k$samp), collapse = "-"),
                          s = i+1,
-                         variable = c("rec", paste0("mag_", est_thresh), "kw","kw2",  "icc"), 
-                         value = c(max(n_agree_rec$n), unlist(a[["thrsh"]]), kw, kw2, icc["icc_a"]))
+                         variable = c("rec", paste0("mag_abs_", est_thresh_abs), paste0("mag_rel_", est_thresh_rel), paste0("window_rel_", est_thresh_rel),"kw", "kw2", "icc"), 
+                         value = c(max(n_agree_rec$n), unlist(a[["thrsh_abs"]]), unlist(a[["thrsh_rel"]]), unlist(a[["window_rel"]]), kw, kw2, icc["icc_a"]))
   }
   return(rbindlist(d))
 }
@@ -130,24 +132,79 @@ draw_similar_models <- function(dat, n_mods, sim_thresh, num_models_in_set){
 }
 
 calculate_agreement <- function(k, 
-                                est_thresh, 
+                                est_thresh_abs, 
+                                est_thresh_rel,
                                 num_models_in_set){
   # compare recommendations
   n_agree_rec <- k %>% 
     .[, .(n = .N), by = .(rec)]
   # compare estimates
-  thrsh <- list()
-  for(j in 1:length(est_thresh)){
-    t <- est_thresh[j]
-    n_agree_mag <- k %>% 
+  thrsh_abs <- thrsh_rel <- window_rel <- list()
+  for(j in 1:length(est_thresh_abs)){
+    t <- est_thresh_abs[j]
+    n_agree_mag_df <- k %>% 
       .[, thresh_u := n + t] %>% 
-      .[, thresh_l := n - t]
+      .[, thresh_l := n - t] 
     n_agree_mag <- sapply(1:(num_models_in_set+1), 
-                          function(i){return(with(n_agree_mag, 
+                          function(i){return(with(n_agree_mag_df, 
                                                   length(which(n <= thresh_u[i] & 
                                                                  n >= thresh_l[i]))))})
-    thrsh[[j]] <- max(n_agree_mag)
+    thrsh_abs[[j]] <- max(n_agree_mag)
   }
-  return(list(n_agree_rec = n_agree_rec, n_agree_mag = n_agree_mag, thrsh = thrsh))
+  for(j in 1:length(est_thresh_rel)){
+    t <- est_thresh_rel[j]
+    n_agree_mag_df_rel <- k %>% 
+      .[, thresh_u := n + t*n] %>% 
+      .[, thresh_l := n - t*n]
+    n_agree_mag_rel <- sapply(1:(num_models_in_set+1), 
+                          function(i){return(with(n_agree_mag_df_rel, 
+                                                  length(which(n <= thresh_u[i] & 
+                                                                 n >= thresh_l[i]))))})
+    thrsh_rel[[j]] <- max(n_agree_mag_rel)
+    window_rel[[j]] <- min((n_agree_mag_df_rel$thresh_u - n_agree_mag_df_rel$thresh_l)[which(n_agree_mag_rel == max(n_agree_mag_rel))])
+  }
+  return(list(n_agree_rec = n_agree_rec, n_agree_mag = n_agree_mag, 
+              n_agree_mag_rel = n_agree_mag_rel, thrsh_abs = thrsh_abs, thrsh_rel = thrsh_rel, 
+              window_rel = window_rel))
+}
+
+calculate_agreement_SMH <- function(k, 
+                                    est_thresh_abs, 
+                                    est_thresh_rel){
+  # compare recommendations
+  n_agree_rec <- k %>% 
+    .[, .(n = .N), by = .(r)]
+  n_agree_rec_max <- max(n_agree_rec$n)
+  # compare estimates
+  thrsh_abs <- thrsh_rel <- window_rel <- list()
+  num_models_in_set = nrow(k)
+  for(j in 1:length(est_thresh_abs)){
+    t <- est_thresh_abs[j]
+    n_agree_mag <- copy(k) 
+    n_agree_mag <- n_agree_mag %>% 
+      .[, thresh_u := value + t*population] %>% 
+      .[, thresh_l := value - t*population]
+    n_agree_mag <- sapply(1:(num_models_in_set+1), 
+                          function(i){return(with(n_agree_mag, 
+                                                  length(which(value <= thresh_u[i] & 
+                                                                 value >= thresh_l[i]))))})
+    thrsh_abs[[j]] <- max(n_agree_mag)
+  }
+  for(j in 1:length(est_thresh_rel)){
+    t <- est_thresh_rel[j]
+    n_agree_mag_df_rel <- copy(k)
+    n_agree_mag_df_rel <- n_agree_mag_df_rel %>% 
+      .[, thresh_u := value + t*value] %>% 
+      .[, thresh_l := value - t*value]
+    n_agree_mag_rel <- sapply(1:(num_models_in_set+1), 
+                              function(i){return(with(n_agree_mag_df_rel, 
+                                                      length(which(value <= thresh_u[i] & 
+                                                                     value >= thresh_l[i]))))})
+    thrsh_rel[[j]] <- max(n_agree_mag_rel)
+    window_rel[[j]] <- min((n_agree_mag_df_rel$thresh_u - n_agree_mag_df_rel$thresh_l)[which(n_agree_mag_rel == max(n_agree_mag_rel))])
+  }
+  ret <- c(num_models_in_set, n_agree_rec_max, thrsh_abs, thrsh_rel, window_rel)
+  names(ret) = c("n_models","n_agree_rec", paste0("n_agree_mag_abs_",est_thresh_abs), paste0("n_agree_mag_rel_",est_thresh_rel), paste0("window_rel_",est_thresh_rel))
+  return(ret)
 }
 
