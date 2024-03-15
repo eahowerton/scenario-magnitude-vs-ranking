@@ -1,5 +1,7 @@
 renv::restore()
 
+library(data.table)
+library(dplyr)
 library(ggplot2)
 library(metR)
 library(scales)
@@ -14,6 +16,7 @@ SMH_agreement <- setDT(read.csv("output-data/SMH-analysis/SMH_agreement.csv")) %
   .[, ":=" (target_end_date = as.IDate(target_end_date), 
             X = NULL)]
 
+p <- setDT(read.csv("output-data/SMH-analysis/SMH_ranks.csv"))
 
 #### FIGURE 6A -----------------------------------------------------------------
 ex_a <- data.frame(round = 11, 
