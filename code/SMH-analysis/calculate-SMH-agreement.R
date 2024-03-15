@@ -27,3 +27,14 @@ SMH_agreement <- p[, as.list(calc_scores_manual(.SD)),
 
 write.csv(SMH_agreement, "output-data/SMH-analysis/SMH_agreement.csv")
 
+# perform tolerance method calculations
+start.time <- Sys.time()
+SMH_agreement_tolerance_method <- p %>% 
+  .[, horiz := (target_end_date - min(target_end_date))/7 + 1, by = .(round)] %>%
+  .[, max_horiz := max(horiz), by =.(round)] %>%
+  .[quantile == 0.5 & horiz == max_horiz & target == "cum hosp"] %>% 
+  .[, as.list(calculate_agreement_SMH(.SD, est_thresh_abs = c(0.01,0.05,0.1), # percent of population 
+                                       est_thresh_rel = c(0.1,0.25,0.5,0.75))), # percent of projected magnitude
+         by = .(round, target, target_end_date, horiz, location, quantile, scenario_id)]
+Sys.time() - start.time
+write.csv(SMH_agreement_tolerance_method, "output-data/SMH-analysis/SMH_agreement_tolerance_method.csv")
