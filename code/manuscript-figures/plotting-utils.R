@@ -1,3 +1,11 @@
+#### PLOT SETTINGS -------------------------------------------------------
+bs <- 7
+
+smh_rel_levels <- c(0.25,0.5,0.75)
+smh_abs_levels <- c(200,500,1000)
+sim_rel_levels <- c(0.02,0.05,0.1,0.15)
+sim_abs_levels <- c(20,50,100)
+
 #### PLOT LABELS ---------------------------------------------------------------
 comp_labs <- c("infectious individuals", "cumulative infections")
 names(comp_labs) <- c("I", "C")
@@ -24,7 +32,7 @@ est_labs <- c("Estimates agree within\n20 infections",
               "Estimates agree within\n50 infections",
               "Estimates agree within\n100 infections",
               "Intervention scenario\nranking agrees")
-names(est_labs) <- c("mag_10", "mag_25", "mag_50", "rec")
+names(est_labs) <- c("mag_abs_20", "mag_abs_50", "mag_abs_100", "rec")
 
 
 round_labs <- c("Round 1 (vaccination, NPIs)\nbegin Jan. 9, 2021, 26 weeks", 
@@ -49,10 +57,4 @@ names(round_labs_simp) <- c(1:7, 9, 11:16)
 horiz_labs <- paste(c(4,8,12,16,20,26,40,50,52), "wks\nahead")
 names(horiz_labs) <- c(4,8,12,16,20,26,40,50,52)
 
-#### OTHER PLOT SETTINGS -------------------------------------------------------
-bs <- 7
 
-smh_rel_levels <- c(0.25,0.5,0.75)
-smh_abs_levels <- c(200,500,1000)
-sim_rel_levels <- c(0.02,0.05,0.1,0.15)
-sim_abs_levels <- c(20,50,100)
