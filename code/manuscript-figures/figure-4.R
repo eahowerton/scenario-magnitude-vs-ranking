@@ -20,7 +20,6 @@ lims <- p[target == "cum hosp" &
   .[, plt_val := value/population*1E5] %>% 
   pull(plt_val) %>% range()
 
-lvls <- c(250, 500,750)
 
 #### FIGURE 4A -----------------------------------------------------------------
 ex_a <- data.frame(round = 11, 
@@ -147,10 +146,10 @@ ex_d <- data.frame(round = 11,
                    location = "24") # maryland
 
 illustrate_lvls <- data.frame(scenario_letter = "A", 
-                              xmin = lims[2]-2*lvls, 
+                              xmin = lims[2]-2*smh_abs_levels, 
                               xmax = lims[2], 
                               y = 2:4+0.5, 
-                              win = paste0("\u00B1",lvls))
+                              win = paste0(smh_abs_levels))
 illustrate_lvls$xmean = rowMeans(cbind(illustrate_lvls$xmin, illustrate_lvls$xmax)) 
 
 
