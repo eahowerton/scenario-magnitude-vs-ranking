@@ -51,3 +51,8 @@ names(horiz_labs) <- c(4,8,12,16,20,26,40,50,52)
 
 #### OTHER PLOT SETTINGS -------------------------------------------------------
 bs <- 7
+
+smh_rel_levels <- c(0.25,0.5,0.75)
+smh_abs_levels <- c(200,500,1000)
+sim_rel_levels <- c(0.02,0.05,0.1,0.15)
+sim_abs_levels <- c(20,50,100)
