@@ -35,7 +35,8 @@ plt_data <- plt_data[, c("variable_type", "variable_tol") := data.table(stringr:
 ggplot(data = plt_data %>%
          .[, rel_value := value/s] %>%
          .[rel_value == 2/3 & mod_type %in% c("all", "similar") & 
-             variable %in% c("mag_abs_10", "mag_abs_25", "mag_abs_50", "rel")] %>%
+             variable %in% c("mag_abs_20", "mag_abs_50", "mag_abs_100", "rec")] %>%
+         .[, variable := factor(variable, levels = c("mag_abs_20", "mag_abs_50", "mag_abs_100", "rec"))],
        aes(x = s)) +  #, y = value0
   geom_line(aes(y = ncum, color = as.factor(variable)), 
             size = 0.25, alpha = 0.7) +
