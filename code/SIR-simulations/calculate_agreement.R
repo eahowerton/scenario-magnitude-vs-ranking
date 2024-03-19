@@ -26,14 +26,17 @@ n_models = nrow(one_panel[intervention == "n"])
 n_sims = 1e4
 set.seed(47)
 
+lvls <- c(20,50,100)
+lvls_rel <- c(0.02,0.05,0.1,0.15)
+
 samp = lapply(1:n_sims, approx_agreement, 
               dat = one_panel_alt[variable == "cases"] %>%
                 .[, ":=" (d_rate = pick_d, 
                           v_rate = pick_v)], 
               n_mods = n_models,
               max_set_size = 12, 
-              est_thresh_abs = c(10,25,50),
-              est_thresh_rel = c(0.02,0.05,0.07,0.1)
+              est_thresh_abs = lvls,
+              est_thresh_rel = lvls_rel
 )
 
 # repeat for "similar" models only
@@ -43,8 +46,8 @@ samp_sim = lapply(1:n_sims, approx_agreement,
                               v_rate = pick_v)],
                   n_mods = n_models,
                   max_set_size = 12, 
-                  est_thresh_abs = c(10,25,50),
-                  est_thresh_rel = c(0.02,0.05,0.1),
+                  est_thresh_abs = lvls,
+                  est_thresh_rel = lvls_rel,
                   similar_flag = TRUE)
 
 # repeat for "similar" models with smaller tol
@@ -54,8 +57,8 @@ samp_sim_lwr = lapply(1:n_sims, approx_agreement,
                                   v_rate = pick_v)],
                       n_mods = n_models,
                       max_set_size = 12, 
-                      est_thresh_abs = c(10,25,50),
-                      est_thresh_rel = c(0.02,0.05,0.1),
+                      est_thresh_abs = lvls,
+                      est_thresh_rel = lvls_rel,
                       similar_flag = TRUE, 
                       sim_thresh = 0.05)
 
@@ -66,8 +69,8 @@ samp_sim_upr = lapply(1:n_sims, approx_agreement,
                                   v_rate = pick_v)],
                       n_mods = n_models,
                       max_set_size = 12, 
-                      est_thresh_abs = c(10,25,50),
-                      est_thresh_rel = c(0.02,0.05,0.1),
+                      est_thresh_abs = lvls,
+                      est_thresh_rel = lvls_rel,
                       similar_flag = TRUE, 
                       sim_thresh = 0.15)
 

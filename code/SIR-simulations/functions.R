@@ -144,27 +144,38 @@ calculate_agreement <- function(k,
     t <- est_thresh_abs[j]
     n_agree_mag_df <- k %>% 
       .[, thresh_u := n + t] %>% 
-      .[, thresh_l := n - t] 
-    n_agree_mag <- sapply(1:(num_models_in_set+1), 
-                          function(i){return(with(n_agree_mag_df, 
-                                                  length(which(n <= thresh_u[i] & 
-                                                                 n >= thresh_l[i]))))})
-    thrsh_abs[[j]] <- max(n_agree_mag)
+      .[, thresh_val := n] %>%
+      .[, thresh_l := n - t]  %>%
+    n_agree_mag_u <- sapply(1:(num_models_in_set+1), 
+                            function(i){return(with(n_agree_mag_df, 
+                                                    length(which(n <= thresh_u[i] & 
+                                                                   n >= thresh_val[i]))))})
+    n_agree_mag_l <- sapply(1:(num_models_in_set+1),
+                            function(i){return(with(n_agree_mag_df, 
+                                                    length(which(n <= thresh_val[i] & 
+                                                                   n >= thresh_l[i]))))})
+    thrsh_abs[[j]] <- max(c(n_agree_mag_u,n_agree_mag_l))
   }
   for(j in 1:length(est_thresh_rel)){
     t <- est_thresh_rel[j]
     n_agree_mag_df_rel <- k %>% 
       .[, thresh_u := n + t*n] %>% 
+      .[, thresh_val := n] %>% 
       .[, thresh_l := n - t*n]
-    n_agree_mag_rel <- sapply(1:(num_models_in_set+1), 
-                          function(i){return(with(n_agree_mag_df_rel, 
-                                                  length(which(n <= thresh_u[i] & 
-                                                                 n >= thresh_l[i]))))})
-    thrsh_rel[[j]] <- max(n_agree_mag_rel)
-    window_rel[[j]] <- min((n_agree_mag_df_rel$thresh_u - n_agree_mag_df_rel$thresh_l)[which(n_agree_mag_rel == max(n_agree_mag_rel))])
+    n_agree_mag_rel_u <- sapply(1:(num_models_in_set), 
+                                function(i){return(with(n_agree_mag_df_rel, 
+                                                        length(which(n <= thresh_u[i] & 
+                                                                       n >= thresh_val[i]))))})
+    n_agree_mag_rel_l <- sapply(1:(num_models_in_set), 
+                                function(i){return(with(n_agree_mag_df_rel, 
+                                                        length(which(n <= thresh_val[i] & 
+                                                                       n >= thresh_l[i]))))})
+    thrsh_rel[[j]] <- max(c(n_agree_mag_rel_u, n_agree_mag_rel_l))
+    window_rel[[j]] <- min(c(n_agree_mag_df_rel$thresh_u - n_agree_mag_df_rel$thresh_val,
+                             n_agree_mag_df_rel$thresh_val - n_agree_mag_df_rel$thresh_l)[which(c(n_agree_mag_rel_u,n_agree_mag_rel_l) == thrsh_rel[[j]])])
   }
-  return(list(n_agree_rec = n_agree_rec, n_agree_mag = n_agree_mag, 
-              n_agree_mag_rel = n_agree_mag_rel, thrsh_abs = thrsh_abs, thrsh_rel = thrsh_rel, 
+  return(list(n_agree_rec = n_agree_rec, n_agree_mag = c(n_agree_mag_u, n_agree_mag_l), 
+              n_agree_mag_rel = c(n_agree_mag_rel_u, n_agree_mag_rel_l), thrsh_abs = thrsh_abs, thrsh_rel = thrsh_rel, 
               window_rel = window_rel))
 }
 
